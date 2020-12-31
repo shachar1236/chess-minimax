@@ -10,13 +10,15 @@ public class Piece {
 	int i;
 	int j;
 	
+	boolean firstMove = true;
+	
 	public Piece(int i, int j, int side) {
 		this.i = i;
 		this.j = j;
 		this.side = side;
 	}
 	
-	public Node getPossibleMoves() {
+	public Node getPossibleMoves(int[][] board) {
 		return new Node(new PVector(i, j - 1));
 	}
 	

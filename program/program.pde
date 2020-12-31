@@ -47,7 +47,7 @@ Piece[] black = {
 void setup() {
 	size(800, 800);
 	cellSize = width / rows;
-	updateBoard();
+	board = updateBoard(white, black);
 	
 	PawnWhiteImg = loadImage("data/pawnWhite.png");
 	PawnBlackImg = loadImage("data/pawnBlack.png");
@@ -83,7 +83,7 @@ void draw() {
 	
 	if (moving) {
 		Node move = movingPiecePossibleMoves;
-		while(move != null) {
+		while(move != null && move.data != null) {
 			fill(0, 200, 0);
 			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
 			move = move.next;
@@ -108,22 +108,24 @@ void draw() {
 	}
 }
 
-void updateBoard() {
-	for (int i = 0; i < board.length; i++) {
-		for (int j = 0; j < board[i].length; j++) {
-			board[i][j] = 0;
+int[][] updateBoard(Piece[] p1, Piece[] p2) {
+	int[][] newBoard = new int[8][8];
+	for (int i = 0; i < newBoard.length; i++) {
+		for (int j = 0; j < newBoard[i].length; j++) {
+			newBoard[i][j] = 0;
 		}
 	}
-	for (int i = 0; i < white.length; i++) {
-		if (white[i] != null) {
-			board[white[i].i][white[i].j] = white[i].id * white[i].side;
+	for (int i = 0; i < p1.length; i++) {
+		if (p1[i] != null) {
+			newBoard[p1[i].i][p1[i].j] = p1[i].id * p1[i].side;
 		}
 	}
-	for (int i = 0; i < black.length; i++) {
-		if (black[i] != null) {
-			board[black[i].i][black[i].j] = black[i].id * black[i].side;
+	for (int i = 0; i < p2.length; i++) {
+		if (p2[i] != null) {
+			newBoard[p2[i].i][p2[i].j] = p2[i].id * p2[i].side;
 		}
 	}
+	return newBoard;
 }
 
 void mousePressed() {
@@ -146,7 +148,7 @@ void mousePressed() {
 	if (valid) {
 		moving = true;
 		movingPiece = piece;
-		movingPiecePossibleMoves = piece.getPossibleMoves();
+		movingPiecePossibleMoves = piece.getPossibleMoves(board);
 	}
 }
 
@@ -157,9 +159,10 @@ void mouseReleased() {
 	
 	boolean valid = false;
 	Node move = movingPiecePossibleMoves;
-	while(move != null) {
+	while(move != null && move.data != null) {
 		if (move.data.x == i && move.data.y == j) {
 			valid = true;
+			movingPiece.firstMove = false;
 			break;
 		}
 		move = move.next;
@@ -184,5 +187,9 @@ void mouseReleased() {
 			movingPiece.j = j;
 		}
 	}
-	updateBoard();
+	board = updateBoard(white, black);
+}
+
+boolean inRange(int num) {
+	return num > - 1 && num < 8;
 }

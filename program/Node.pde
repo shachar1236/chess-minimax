@@ -8,7 +8,12 @@ public class Node {
 		next = null;
 	}
 	
-	public void add(PVector n) {
+	public Node add(PVector n) {
+		if (data == null) {
+			data = n;
+			return this;
+		}
 		next = new Node(n);
+		return next;
 	}
 }
