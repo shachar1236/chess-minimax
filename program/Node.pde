@@ -1,14 +1,14 @@
 public class Node {
 	
-	Piece data;
+	PVector data;
 	Node next;
 	
-	public Node(Piece data) {
+	public Node(PVector data) {
 		this.data = data;
 		next = null;
 	}
 	
-	public void add(Piece n) {
+	public void add(PVector n) {
 		next = new Node(n);
 	}
 }

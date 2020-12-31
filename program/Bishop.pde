@@ -8,15 +8,22 @@ public class Bishop extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = BishopWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = BishopBlackImg;
 		}
-		textSize(30);
-		text("B",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = BishopWhiteImg;
+		} else {
+			img = BishopBlackImg;
+		}
+		return img;
 	}
 }

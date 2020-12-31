@@ -16,8 +16,16 @@ public class Piece {
 		this.side = side;
 	}
 	
+	public Node getPossibleMoves() {
+		return new Node(new PVector(i, j - 1));
+	}
+	
 	public void show() {
 		
+	}
+	
+	PImage getImg() {
+		return BishopWhiteImg;
 	}
 	
 }

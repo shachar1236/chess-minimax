@@ -8,15 +8,23 @@ class King extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = KingWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = KingBlackImg;
 		}
-		textSize(30);
-		text("K",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	
+	PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = KingWhiteImg;
+		} else {
+			img = KingBlackImg;
+		}
+		return img;
 	}
 }

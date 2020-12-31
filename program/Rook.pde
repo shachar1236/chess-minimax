@@ -8,15 +8,22 @@ public class Rook extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = RookWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = RookBlackImg;
 		}
-		textSize(30);
-		text("R",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = RookWhiteImg;
+		} else {
+			img = RookBlackImg;
+		}
+		return img;
 	}
 }

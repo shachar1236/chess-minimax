@@ -17,18 +17,38 @@ public class program extends PApplet {
 final int rows = 8;
 final int cols = 8;
 
-int cellSize; 
+int cellSize;
 
-int[][] board = {
-	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
-	{ - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id} ,
-	{Rook.id, Knight.id, Bishop.id, King.id, Queen.id, Bishop.id, Knight.id, Rook.id}
-};
+boolean moving = false;
+Piece movingPiece;
+Node movingPiecePossibleMoves;
+
+PImage PawnWhiteImg;
+PImage RookWhiteImg;
+PImage KnightWhiteImg;
+PImage BishopWhiteImg;
+PImage KingWhiteImg;
+PImage QueenWhiteImg;
+
+PImage PawnBlackImg;
+PImage RookBlackImg;
+PImage KnightBlackImg;
+PImage BishopBlackImg;
+PImage KingBlackImg;
+PImage QueenBlackImg;
+
+int board[][] = new int[8][8];
+
+// int[][] board = {
+// 	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
+// 	{ - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id} ,
+// 	{Rook.id, Knight.id, Bishop.id, King.id, Queen.id, Bishop.id, Knight.id, Rook.id}
+// };
 
 Piece[] white = {
 	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
@@ -43,6 +63,25 @@ Piece[] black = {
 public void setup() {
 	
 	cellSize = width / rows;
+	updateBoard();
+	
+	PawnWhiteImg = loadImage("data/pawnWhite.png");
+	PawnBlackImg = loadImage("data/pawnBlack.png");
+	
+	RookWhiteImg = loadImage("data/rookWhite.png");
+	RookBlackImg = loadImage("data/rookBlack.png");
+	
+	KnightWhiteImg = loadImage("data/knightWhite.png");
+	KnightBlackImg = loadImage("data/knightBlack.png");
+	
+	BishopWhiteImg = loadImage("data/bishopWhite.png");
+	BishopBlackImg = loadImage("data/bishopBlack.png");
+	
+	KingWhiteImg = loadImage("data/kingWhite.png");
+	KingBlackImg = loadImage("data/kingBlack.png");
+	
+	QueenWhiteImg = loadImage("data/queenWhite.png");
+	QueenBlackImg = loadImage("data/queenBlack.png");
 }
 
 public void draw() {
@@ -52,17 +91,116 @@ public void draw() {
 			if ((i + j) % 2 == 1) {
 				fill(255);
 			} else {
-				fill(0);
+				fill(30);
 			}
 			rect(i * cellSize, j * cellSize, cellSize, cellSize);
 		}
 	}
+	
+	if (moving) {
+		Node move = movingPiecePossibleMoves;
+		while(move != null) {
+			fill(0, 200, 0);
+			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
+			move = move.next;
+		}
+	}
+	
 	for (int i = 0; i < white.length; i++) {
-		white[i].show();
+		if (white[i] != null) {
+			if (moving && movingPiece.i == white[i].i && movingPiece.j == white[i].j) {
+				PImage img = movingPiece.getImg();
+				image(img, mouseX - cellSize / 2, mouseY - cellSize / 2, cellSize * 1.2f, cellSize * 1.2f);
+			} else {
+				white[i].show();
+			}
+		}
+	}
+	
+	for (int i = 0; i < black.length; i++) {
+		if (black[i] != null) {
+			black[i].show();
+		}
+	}
+}
+
+public void updateBoard() {
+	for (int i = 0; i < board.length; i++) {
+		for (int j = 0; j < board[i].length; j++) {
+			board[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < white.length; i++) {
+		if (white[i] != null) {
+			board[white[i].i][white[i].j] = white[i].id * white[i].side;
+		}
 	}
 	for (int i = 0; i < black.length; i++) {
-		black[i].show();
+		if (black[i] != null) {
+			board[black[i].i][black[i].j] = black[i].id * black[i].side;
+		}
 	}
+}
+
+public void mousePressed() {
+	int i = floor(mouseX / cellSize);
+	int j = floor(mouseY / cellSize);
+	
+	boolean valid = false;
+	Piece piece = null;
+	
+	for (int k = 0; k < white.length; k++) {
+		if (white[k] != null) {
+			if (white[k].i == i && white[k].j == j) {
+				valid = true;
+				piece = white[k];
+				break;
+			}
+		}
+	}
+	
+	if (valid) {
+		moving = true;
+		movingPiece = piece;
+		movingPiecePossibleMoves = piece.getPossibleMoves();
+	}
+}
+
+public void mouseReleased() {
+	moving = false;
+	int i = floor(mouseX / cellSize);
+	int j = floor(mouseY / cellSize);
+	
+	boolean valid = false;
+	Node move = movingPiecePossibleMoves;
+	while(move != null) {
+		if (move.data.x == i && move.data.y == j) {
+			valid = true;
+			break;
+		}
+		move = move.next;
+	}
+	
+	if (i > - 1 && i < 8 && j > - 1 && i < 8 && valid) {
+		if (board[i][j] < 0) {
+			Piece piece = null;
+			for (int k = 0; k <  black.length; k++) {
+				if (black[k] != null) {
+					if (black[k].i == i && black[k].j == j) {
+						black[k] = null;
+						// piece = black[i];
+					}
+				}
+			}
+			board[i][j] = 0;
+			movingPiece.i = i;
+			movingPiece.j = j;
+		} else if (board[i][j] == 0) {
+			movingPiece.i = i;
+			movingPiece.j = j;
+		}
+	}
+	updateBoard();
 }
 public class Bishop extends Piece {
 	
@@ -74,16 +212,23 @@ public class Bishop extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = BishopWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = BishopBlackImg;
 		}
-		textSize(30);
-		text("B",((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = BishopWhiteImg;
+		} else {
+			img = BishopBlackImg;
+		}
+		return img;
 	}
 }
 class King extends Piece {
@@ -96,16 +241,24 @@ class King extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = KingWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = KingBlackImg;
 		}
-		textSize(30);
-		text("K",((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = KingWhiteImg;
+		} else {
+			img = KingBlackImg;
+		}
+		return img;
 	}
 }
 public class Knight extends Piece {
@@ -118,29 +271,36 @@ public class Knight extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = KnightWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = KnightBlackImg;
 		}
-		textSize(30);
-		text("Kn",((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = KnightWhiteImg;
+		} else {
+			img = KnightBlackImg;
+		}
+		return img;
 	}
 }
 public class Node {
 	
-	Piece data;
+	PVector data;
 	Node next;
 	
-	public Node(Piece data) {
+	public Node(PVector data) {
 		this.data = data;
 		next = null;
 	}
 	
-	public void add(Piece n) {
+	public void add(PVector n) {
 		next = new Node(n);
 	}
 }
@@ -154,16 +314,23 @@ public class Pawn extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = PawnWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = PawnBlackImg;
 		}
-		textSize(30);
-		text("P",((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = PawnWhiteImg;
+		} else {
+			img = PawnBlackImg;
+		}
+		return img;
 	}
 }
 public class Piece {
@@ -184,8 +351,16 @@ public class Piece {
 		this.side = side;
 	}
 	
+	public Node getPossibleMoves() {
+		return new Node(new PVector(i, j - 1));
+	}
+	
 	public void show() {
 		
+	}
+	
+	public PImage getImg() {
+		return BishopWhiteImg;
 	}
 	
 }
@@ -199,16 +374,23 @@ class Queen extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = QueenWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = QueenBlackImg;
 		}
-		textSize(30);
-		text("Q",((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = QueenWhiteImg;
+		} else {
+			img = QueenBlackImg;
+		}
+		return img;
 	}
 }
 public class Rook extends Piece {
@@ -221,17 +403,23 @@ public class Rook extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = RookWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = RookBlackImg;
 		}
-		ellipse(((float)i + 0.5f) * cellSize,((float)j + 0.5f) * cellSize, cellSize, cellSize);
-		// textSize(30);
-		// text("R",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	public PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = RookWhiteImg;
+		} else {
+			img = RookBlackImg;
+		}
+		return img;
 	}
 }
   public void settings() { 	size(800, 800); }

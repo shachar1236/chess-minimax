@@ -8,15 +8,22 @@ public class Knight extends Piece {
 	}
 	
 	public void show() {
-		strokeWeight(8);
+		PImage img;
 		if (side == 1) {
-			fill(255);
-			stroke(0);
+			img = KnightWhiteImg;
 		} else {
-			fill(0);
-			stroke(255);
+			img = KnightBlackImg;
 		}
-		textSize(30);
-		text("Kn",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
+		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+	
+	PImage getImg() {
+		PImage img;
+		if (side == 1) {
+			img = KnightWhiteImg;
+		} else {
+			img = KnightBlackImg;
+		}
+		return img;
 	}
 }

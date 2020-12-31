@@ -1,18 +1,38 @@
 final int rows = 8;
 final int cols = 8;
 
-int cellSize; 
+int cellSize;
 
-int[][] board = {
-	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
-	{ - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{0, 0, 0, 0, 0, 0, 0, 0} ,
-	{Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id} ,
-	{Rook.id, Knight.id, Bishop.id, King.id, Queen.id, Bishop.id, Knight.id, Rook.id}
-};
+boolean moving = false;
+Piece movingPiece;
+Node movingPiecePossibleMoves;
+
+PImage PawnWhiteImg;
+PImage RookWhiteImg;
+PImage KnightWhiteImg;
+PImage BishopWhiteImg;
+PImage KingWhiteImg;
+PImage QueenWhiteImg;
+
+PImage PawnBlackImg;
+PImage RookBlackImg;
+PImage KnightBlackImg;
+PImage BishopBlackImg;
+PImage KingBlackImg;
+PImage QueenBlackImg;
+
+int board[][] = new int[8][8];
+
+// int[][] board = {
+// 	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
+// 	{ - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
+// 	{Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id} ,
+// 	{Rook.id, Knight.id, Bishop.id, King.id, Queen.id, Bishop.id, Knight.id, Rook.id}
+// };
 
 Piece[] white = {
 	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
@@ -27,6 +47,25 @@ Piece[] black = {
 void setup() {
 	size(800, 800);
 	cellSize = width / rows;
+	updateBoard();
+	
+	PawnWhiteImg = loadImage("data/pawnWhite.png");
+	PawnBlackImg = loadImage("data/pawnBlack.png");
+	
+	RookWhiteImg = loadImage("data/rookWhite.png");
+	RookBlackImg = loadImage("data/rookBlack.png");
+	
+	KnightWhiteImg = loadImage("data/knightWhite.png");
+	KnightBlackImg = loadImage("data/knightBlack.png");
+	
+	BishopWhiteImg = loadImage("data/bishopWhite.png");
+	BishopBlackImg = loadImage("data/bishopBlack.png");
+	
+	KingWhiteImg = loadImage("data/kingWhite.png");
+	KingBlackImg = loadImage("data/kingBlack.png");
+	
+	QueenWhiteImg = loadImage("data/queenWhite.png");
+	QueenBlackImg = loadImage("data/queenBlack.png");
 }
 
 void draw() {
@@ -36,15 +75,114 @@ void draw() {
 			if ((i + j) % 2 == 1) {
 				fill(255);
 			} else {
-				fill(0);
+				fill(30);
 			}
 			rect(i * cellSize, j * cellSize, cellSize, cellSize);
 		}
 	}
+	
+	if (moving) {
+		Node move = movingPiecePossibleMoves;
+		while(move != null) {
+			fill(0, 200, 0);
+			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
+			move = move.next;
+		}
+	}
+	
 	for (int i = 0; i < white.length; i++) {
-		white[i].show();
+		if (white[i] != null) {
+			if (moving && movingPiece.i == white[i].i && movingPiece.j == white[i].j) {
+				PImage img = movingPiece.getImg();
+				image(img, mouseX - cellSize / 2, mouseY - cellSize / 2, cellSize * 1.2, cellSize * 1.2);
+			} else {
+				white[i].show();
+			}
+		}
+	}
+	
+	for (int i = 0; i < black.length; i++) {
+		if (black[i] != null) {
+			black[i].show();
+		}
+	}
+}
+
+void updateBoard() {
+	for (int i = 0; i < board.length; i++) {
+		for (int j = 0; j < board[i].length; j++) {
+			board[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < white.length; i++) {
+		if (white[i] != null) {
+			board[white[i].i][white[i].j] = white[i].id * white[i].side;
+		}
 	}
 	for (int i = 0; i < black.length; i++) {
-		black[i].show();
+		if (black[i] != null) {
+			board[black[i].i][black[i].j] = black[i].id * black[i].side;
+		}
 	}
+}
+
+void mousePressed() {
+	int i = floor(mouseX / cellSize);
+	int j = floor(mouseY / cellSize);
+	
+	boolean valid = false;
+	Piece piece = null;
+	
+	for (int k = 0; k < white.length; k++) {
+		if (white[k] != null) {
+			if (white[k].i == i && white[k].j == j) {
+				valid = true;
+				piece = white[k];
+				break;
+			}
+		}
+	}
+	
+	if (valid) {
+		moving = true;
+		movingPiece = piece;
+		movingPiecePossibleMoves = piece.getPossibleMoves();
+	}
+}
+
+void mouseReleased() {
+	moving = false;
+	int i = floor(mouseX / cellSize);
+	int j = floor(mouseY / cellSize);
+	
+	boolean valid = false;
+	Node move = movingPiecePossibleMoves;
+	while(move != null) {
+		if (move.data.x == i && move.data.y == j) {
+			valid = true;
+			break;
+		}
+		move = move.next;
+	}
+	
+	if (i > - 1 && i < 8 && j > - 1 && i < 8 && valid) {
+		if (board[i][j] < 0) {
+			Piece piece = null;
+			for (int k = 0; k <  black.length; k++) {
+				if (black[k] != null) {
+					if (black[k].i == i && black[k].j == j) {
+						black[k] = null;
+						// piece = black[i];
+					}
+				}
+			}
+			board[i][j] = 0;
+			movingPiece.i = i;
+			movingPiece.j = j;
+		} else if (board[i][j] == 0) {
+			movingPiece.i = i;
+			movingPiece.j = j;
+		}
+	}
+	updateBoard();
 }
