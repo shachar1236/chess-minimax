@@ -1,5 +1,7 @@
 public class Knight extends Piece {
-	int value = 200;
+	
+	static int value = 200;
+	static int id = 3;
 	
 	public Knight(int i, int j) {
 		this.i = i;

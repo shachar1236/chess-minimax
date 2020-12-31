@@ -1,5 +1,7 @@
 public class Pawn extends Piece {
-	int value = 100;
+	
+	static int value = 100;
+	static int id = 1;
 	
 	public Pawn(int i, int j) {
 		this.i = i;

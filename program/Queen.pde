@@ -1,5 +1,7 @@
 class Queen extends Piece {
-	int value = 500;
+	
+	static int value = 500;
+	static int id = 5;
 	
 	public Queen(int i, int j) {
 		this.i = i;

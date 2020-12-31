@@ -4,7 +4,8 @@ public class Piece {
 	// -1 = black
 	int side = 1;
 	
-	int value = 100;
+	static int value = 100;
+	static int id = 1;
 	
 	int i;
 	int j;

@@ -1,5 +1,7 @@
 class King extends Piece {
-	int value = 1000;
+	
+	static int value = 1000;
+	static int id = 6;
 	
 	public King(int i, int j) {
 		this.i = i;

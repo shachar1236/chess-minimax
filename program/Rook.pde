@@ -1,5 +1,7 @@
 public class Rook extends Piece {
-	int value = 300;
+	
+	static int value = 300;
+	static int id = 2;
 	
 	public Rook(int i, int j) {
 		this.i = i;
