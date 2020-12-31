@@ -1,4 +1,9 @@
 public class Piece {
+	
+	// 1 = white
+	// -1 = black
+	int side = 1;
+	
 	int value = 100;
 	
 	int i;

@@ -3,7 +3,7 @@ final int cols = 8;
 
 int cellSize; 
 
-Piece[][] board = new Piece[8][8];
+int[][] board = new Piece[8][8];
 
 void setup() {
 	size(800, 800);
