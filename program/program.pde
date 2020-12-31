@@ -1,4 +1,3 @@
-
 final int rows = 8;
 final int cols = 8;
 
