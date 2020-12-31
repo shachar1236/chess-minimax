@@ -1,14 +1,14 @@
 public class Knight extends Piece {
 	
-	static int value = 200;
-	static int id = 3;
+	final static int value = 200;
+	final static int id = 3;
 	
-	public Knight(int i, int j) {
-		this.i = i;
-		this.j = j;
+	public Knight(int i, int j, int side) {
+		super(i, j, side);
 	}
 	
 	public void show() {
+		strokeWeight(8);
 		if (side == 1) {
 			fill(255);
 			stroke(0);
@@ -16,7 +16,7 @@ public class Knight extends Piece {
 			fill(0);
 			stroke(255);
 		}
-		textSize(20);
+		textSize(30);
 		text("Kn",((float)i + 0.5) * cellSize,((float)j + 0.5) * cellSize);
 	}
 }
