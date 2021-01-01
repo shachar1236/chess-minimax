@@ -18,7 +18,7 @@ public class Piece {
 		this.side = side;
 	}
 	
-	public Node getPossibleMoves(int[][] board) {
+	public Node getPossibleMoves(int[] board) {
 		return new Node(new PVector(i, j - 1));
 	}
 	

@@ -21,7 +21,7 @@ PImage BishopBlackImg;
 PImage KingBlackImg;
 PImage QueenBlackImg;
 
-int board[][] = new int[8][8];
+int board[] = new int[rows*cols];
 
 // int[][] board = {
 // 	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
@@ -83,7 +83,7 @@ void draw() {
 	
 	if (moving) {
 		Node move = movingPiecePossibleMoves;
-		while(move != null && move.data != null) {
+		while(move != null) {
 			fill(0, 200, 0);
 			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
 			move = move.next;
@@ -108,21 +108,21 @@ void draw() {
 	}
 }
 
-int[][] updateBoard(Piece[] p1, Piece[] p2) {
-	int[][] newBoard = new int[8][8];
-	for (int i = 0; i < newBoard.length; i++) {
-		for (int j = 0; j < newBoard[i].length; j++) {
-			newBoard[i][j] = 0;
+int[] updateBoard(Piece[] p1, Piece[] p2) {
+	int[] newBoard = new int[rows*cols];
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			newBoard[getIndex(i, j)] = 0;
 		}
 	}
 	for (int i = 0; i < p1.length; i++) {
 		if (p1[i] != null) {
-			newBoard[p1[i].i][p1[i].j] = p1[i].id * p1[i].side;
+			newBoard[getIndex(p1[i].i, p1[i].j)] = p1[i].id * p1[i].side;
 		}
 	}
 	for (int i = 0; i < p2.length; i++) {
 		if (p2[i] != null) {
-			newBoard[p2[i].i][p2[i].j] = p2[i].id * p2[i].side;
+			newBoard[getIndex(p2[i].i, p2[i].j)] = p2[i].id * p2[i].side;
 		}
 	}
 	return newBoard;
@@ -159,7 +159,7 @@ void mouseReleased() {
 	
 	boolean valid = false;
 	Node move = movingPiecePossibleMoves;
-	while(move != null && move.data != null) {
+	while(move != null) {
 		if (move.data.x == i && move.data.y == j) {
 			valid = true;
 			movingPiece.firstMove = false;
@@ -168,8 +168,8 @@ void mouseReleased() {
 		move = move.next;
 	}
 	
-	if (i > - 1 && i < 8 && j > - 1 && i < 8 && valid) {
-		if (board[i][j] < 0) {
+	if (inRange(i) && inRange(j) && valid) {
+		if (board[getIndex(i, j)] < 0) {
 			Piece piece = null;
 			for (int k = 0; k <  black.length; k++) {
 				if (black[k] != null) {
@@ -179,10 +179,10 @@ void mouseReleased() {
 					}
 				}
 			}
-			board[i][j] = 0;
+			board[getIndex(i, j)] = 0;
 			movingPiece.i = i;
 			movingPiece.j = j;
-		} else if (board[i][j] == 0) {
+		} else if (board[getIndex(i, j)] == 0) {
 			movingPiece.i = i;
 			movingPiece.j = j;
 		}
@@ -192,4 +192,8 @@ void mouseReleased() {
 
 boolean inRange(int num) {
 	return num > - 1 && num < 8;
+}
+
+int getIndex(int i, int j) {
+	return i * rows + j;
 }
