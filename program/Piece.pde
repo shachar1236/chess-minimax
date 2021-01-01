@@ -10,7 +10,7 @@ public class Piece {
 	int i;
 	int j;
 	
-	boolean firstMove = true;
+	// boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {
 		this.i = i;
@@ -28,6 +28,11 @@ public class Piece {
 	
 	PImage getImg() {
 		return BishopWhiteImg;
+	}
+
+	void move(int x, int y) {
+		i = x;
+		j = y;
 	}
 	
 }

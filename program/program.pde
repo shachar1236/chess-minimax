@@ -162,7 +162,7 @@ void mouseReleased() {
 	while(move != null) {
 		if (move.data.x == i && move.data.y == j) {
 			valid = true;
-			movingPiece.firstMove = false;
+			// movingPiece.firstMove = false;
 			break;
 		}
 		move = move.next;
@@ -180,11 +180,14 @@ void mouseReleased() {
 				}
 			}
 			board[getIndex(i, j)] = 0;
-			movingPiece.i = i;
-			movingPiece.j = j;
+
+			movingPiece.move(i, j);
+			// movingPiece.i = i;
+			// movingPiece.j = j;
 		} else if (board[getIndex(i, j)] == 0) {
-			movingPiece.i = i;
-			movingPiece.j = j;
+			movingPiece.move(i, j);
+			// movingPiece.i = i;
+			// movingPiece.j = j;
 		}
 	}
 	board = updateBoard(white, black);
