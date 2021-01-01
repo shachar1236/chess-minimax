@@ -16,6 +16,24 @@ class King extends Piece {
 		}
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
+
+	Node getPossibleMoves(int[] board) {
+		Node first = new Node(null);
+		Node current = first;
+		for (int a = -1; a < 2; a++) {
+			for (int b = -1; b < 2; b++) {
+				if (inRange(i + a) && inRange(j + b)) {
+					if (board[getIndex(i + a, j + b)] * side < 1) {
+						current = current.add(new PVector(i + a, j + b));
+					}
+				}
+			}
+		}
+		if (first.data == null) {
+			return null;
+		}
+		return first;
+	}
 	
 	
 	PImage getImg() {
