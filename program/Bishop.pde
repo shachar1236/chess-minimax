@@ -17,7 +17,7 @@ public class Bishop extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-		Node getPossibleMoves(int[] board) {
+	Node getPossibleMoves(int[] board) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
