@@ -23,6 +23,8 @@ boolean moving = false;
 Piece movingPiece;
 Node movingPiecePossibleMoves;
 
+int player = 0;
+
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -101,7 +103,7 @@ public void draw() {
 		Node move = movingPiecePossibleMoves;
 		while(move != null) {
 			fill(0, 200, 0);
-			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
+			ellipse(move.data.i * cellSize + cellSize / 2, move.data.j * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
 			move = move.next;
 		}
 	}
@@ -128,34 +130,44 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 	int[] newBoard = new int[rows*cols];
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < cols; j++) {
+			// if (board[getIndex(i, j)] != Pawn.EnPassant) {
 			newBoard[getIndex(i, j)] = 0;
+			// }
 		}
 	}
 	for (int i = 0; i < p1.length; i++) {
 		if (p1[i] != null) {
-			newBoard[getIndex(p1[i].i, p1[i].j)] = p1[i].id * p1[i].side;
+			newBoard[getIndex(p1[i].i, p1[i].j)] = p1[i].getId() * p1[i].side;
 		}
 	}
 	for (int i = 0; i < p2.length; i++) {
 		if (p2[i] != null) {
-			newBoard[getIndex(p2[i].i, p2[i].j)] = p2[i].id * p2[i].side;
+			newBoard[getIndex(p2[i].i, p2[i].j)] = p2[i].getId() * p2[i].side;
 		}
 	}
 	return newBoard;
 }
 
 public void mousePressed() {
+ 	Piece[] playerPieces;
+
+	if (player == 0) {
+		playerPieces = white;
+	} else {
+		playerPieces = black;
+	}
+
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
 	
 	boolean valid = false;
 	Piece piece = null;
 	
-	for (int k = 0; k < white.length; k++) {
-		if (white[k] != null) {
-			if (white[k].i == i && white[k].j == j) {
+	for (int k = 0; k < playerPieces.length; k++) {
+		if (playerPieces[k] != null) {
+			if (playerPieces[k].i == i && playerPieces[k].j == j) {
 				valid = true;
-				piece = white[k];
+				piece = playerPieces[k];
 				break;
 			}
 		}
@@ -164,11 +176,24 @@ public void mousePressed() {
 	if (valid) {
 		moving = true;
 		movingPiece = piece;
-		movingPiecePossibleMoves = piece.getPossibleMoves(board);
+		movingPiecePossibleMoves = piece.getPossibleMoves(board, playerPieces);
 	}
+
 }
 
 public void mouseReleased() {
+
+	Piece[] playerPieces;
+	Piece[] enemyPieces;
+
+	if (player == 0) {
+		playerPieces = white;
+		enemyPieces = black;
+	} else {
+		playerPieces = black;
+		enemyPieces = white;
+	}
+
 	moving = false;
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
@@ -176,7 +201,7 @@ public void mouseReleased() {
 	boolean valid = false;
 	Node move = movingPiecePossibleMoves;
 	while(move != null) {
-		if (move.data.x == i && move.data.y == j) {
+		if (move.data.i == i && move.data.j == j) {
 			valid = true;
 			// movingPiece.firstMove = false;
 			break;
@@ -185,28 +210,48 @@ public void mouseReleased() {
 	}
 	
 	if (inRange(i) && inRange(j) && valid) {
-		if (board[getIndex(i, j)] < 0) {
-			Piece piece = null;
-			for (int k = 0; k <  black.length; k++) {
-				if (black[k] != null) {
-					if (black[k].i == i && black[k].j == j) {
-						black[k] = null;
-						// piece = black[i];
+		Cell dead = movingPiece.move(i, j, board, playerPieces);
+		if (dead != null) {
+			for (int k = 0; k <  enemyPieces.length; k++) {
+				if (enemyPieces[k] != null) {
+					if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+						enemyPieces[k] = null;
 					}
 				}
 			}
-			board[getIndex(i, j)] = 0;
-
-			movingPiece.move(i, j);
-			// movingPiece.i = i;
-			// movingPiece.j = j;
-		} else if (board[getIndex(i, j)] == 0) {
-			movingPiece.move(i, j);
-			// movingPiece.i = i;
-			// movingPiece.j = j;
 		}
+		board = updateBoard(white, black);
+		movingPiece.updateBoard(board);
+		player = (player + 1) % 2;
+		// if (board[getIndex(i, j)] < 0) {
+		// 	Piece piece = null;
+		// 	for (int k = 0; k <  black.length; k++) {
+		// 		if (black[k] != null) {
+		// 			if (black[k].i == i && black[k].j == j) {
+		// 				black[k] = null;
+		// 				// piece = black[i];
+		// 			}
+		// 		}
+		// 	}
+		// 	board[getIndex(i, j)] = 0;
+
+		// 	movingPiece.move(i, j, board, white);
+		// 	// movingPiece.i = i;
+			// movingPiece.j = j;
+		// } else if (board[getIndex(i, j)] == 0) {
+		// 	movingPiece.move(i, j, board, white);
+		// 	// movingPiece.i = i;
+		// 	// movingPiece.j = j;
+		// }
 	}
-	board = updateBoard(white, black);
+	println();
+	for (int a = 0; a < 8; a++) {
+		for (int b = 0; b < 8; b++) {
+			print(board[getIndex(b, a)]);
+			print(" ");
+		}
+		println();
+	}
 }
 
 public boolean inRange(int num) {
@@ -215,6 +260,26 @@ public boolean inRange(int num) {
 
 public int getIndex(int i, int j) {
 	return i * rows + j;
+}
+
+public boolean isEmpty(int i, int j, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value == 0 || Math.abs(value) == Pawn.EnPassant;
+}
+
+public boolean isEmptyOrEnemy(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side < 1 || Math.abs(value) == Pawn.EnPassant;
+}
+
+public boolean isEnemy(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side < 0 && Math.abs(value) != Pawn.EnPassant;
+}
+
+public boolean isMySide(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side > 0 && Math.abs(value) != Pawn.EnPassant;
 }
 public class Bishop extends Piece {
 	
@@ -235,18 +300,18 @@ public class Bishop extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
 			for (int b = -1; b < 2; b += 2) {
 				int move = 1;
 				while (inRange(i + a * move) && inRange(j + b * move)) {
-					if (board[getIndex(i + a * move, j + b * move)] * side > 0) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new PVector(i + a * move, j + b * move));
-					if (board[getIndex(i + a * move, j + b * move)] * side < 0) {
+					current = current.add(new Cell(i + a * move, j + b * move));
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
 						break;
 					}
 					move += 1;
@@ -268,12 +333,26 @@ public class Bishop extends Piece {
 		}
 		return img;
 	}
+
+	public int getId() {
+		return id;
+	}
+}
+public class Cell {
+    
+    int i;
+    int j;
+
+    Cell(int i, int j) {
+        this.i = i;
+        this.j = j;
+    }
 }
 class King extends Piece {
 	
 	final static int value = 1000;
 	final static int id = 6;
-	
+
 	public King(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -288,22 +367,47 @@ class King extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a++) {
 			for (int b = -1; b < 2; b++) {
 				if (inRange(i + a) && inRange(j + b)) {
-					if (board[getIndex(i + a, j + b)] * side < 1) {
-						current = current.add(new PVector(i + a, j + b));
+					if (isEmptyOrEnemy(i + a, j + b, side, board)) {
+						current = current.add(new Cell(i + a, j + b));
 					}
 				}
 			}
 		}
+
+		if (firstMove) {
+			for (int a = 0; a < myPieces.length; a++) {
+				if (myPieces[a].getId() == Rook.id) {
+					int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
+					if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
+						current = current.add(new Cell(i + 2 * dir, j));
+					}
+				}
+			}
+		}
+
 		if (first.data == null) {
 			return null;
 		}
 		return first;
+	}
+
+	public Cell move(int x, int y, int board[], Piece[] myPieces) {
+		if (Math.abs(i - x) == 2) {
+			int dir = Math.abs(i - x) / (x - i);
+			for (int a = 0; a < myPieces.length; a++) {
+				if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) * dir > 0) {
+					myPieces[a].i = i + dir;
+				}
+			}
+		}
+
+		return super.move(x, y, board, myPieces);
 	}
 	
 	
@@ -315,6 +419,10 @@ class King extends Piece {
 			img = KingBlackImg;
 		}
 		return img;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
 public class Knight extends Piece {
@@ -336,19 +444,19 @@ public class Knight extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
 			for (int b = -1; b < 2; b += 2) {
 				if (inRange(i + a * 2) && inRange(j + b)) {
-					if (board[getIndex(i + a * 2, j + b)] * side < 1) {
-						current = current.add(new PVector(i + a * 2, j + b));
+					if (isEmptyOrEnemy(i + a * 2, j + b, side, board)) {
+						current = current.add(new Cell(i + a * 2, j + b));
 					}
 				}
 				if (inRange(i + a) && inRange(j + b * 2)) {
-					if (board[getIndex(i + a, j + b * 2)] * side < 1) {
-						current = current.add(new PVector(i + a, j + b * 2));
+					if (isEmptyOrEnemy(i + a, j + b * 2, side, board)) {
+						current = current.add(new Cell(i + a, j + b * 2));
 					}
 				}
 			}
@@ -368,18 +476,22 @@ public class Knight extends Piece {
 		}
 		return img;
 	}
+
+	public int getId() {
+		return id;
+	}
 }
 public class Node {
 	
-	PVector data;
+	Cell data;
 	Node next;
 	
-	public Node(PVector data) {
+	public Node(Cell data) {
 		this.data = data;
 		next = null;
 	}
 	
-	public Node add(PVector n) {
+	public Node add(Cell n) {
 		if (data == null) {
 			data = n;
 			return this;
@@ -392,9 +504,10 @@ public class Pawn extends Piece {
 	
 	final static int value = 100;
 	final static int id = 1;
+	final static int EnPassant = 100;
 
-	boolean firstMove = true;
-	
+	Cell putEnPassant = null;
+
 	public Pawn(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -409,23 +522,23 @@ public class Pawn extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 	
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		if (inRange(j - side)) {
-			if (board[getIndex(i, j - side)] == 0) {
-				current = current.add(new PVector(i, j - side));
+			if (isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side));
 			}
 		}
 		if (inRange(j - side * 2) && firstMove) {
-			if (board[getIndex(i, j - side * 2)] == 0 && board[getIndex(i, j - side)] == 0) {
-				current = current.add(new PVector(i, j - side * 2));
+			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side * 2));
 			}
 		}
 		for (int k = - 1; k < 2; k += 2) {
 			if (inRange(i + k) && inRange(j - side)) {
-				if (board[getIndex(i + k, j - side)] * side < 0) {
-					current = current.add(new PVector(i + k, j - side));
+				if (isEnemy(i + k, j - side, side, board) || board[getIndex(i + k, j - side)] == EnPassant * side * -1) {
+					current = current.add(new Cell(i + k, j - side));
 				}
 			}
 		}
@@ -445,9 +558,33 @@ public class Pawn extends Piece {
 		return img;
 	}
 
-	public void move(int x, int y) {
-		super.move(x, y);
-		firstMove = false;
+	public void updateBoard(int[] board) {
+		if (putEnPassant != null) {
+			board[getIndex(putEnPassant.i, putEnPassant.j)] = EnPassant * side;
+		}
+		putEnPassant = null;
+	}
+
+	public Cell move(int x, int y, int board[], Piece[] myPieces) {
+		if (Math.abs(y - j) == 2) {
+			println("here");
+			putEnPassant = new Cell(x, j - side);
+		}
+
+		Cell result = super.move(x, y, board, myPieces);
+
+		if (result != null) {
+			return result;
+		}
+
+		if (board[getIndex(i, j)] == EnPassant * side * -1) {
+			return new Cell(i, j + side);
+		}
+		return result;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
 public class Piece {
@@ -462,7 +599,7 @@ public class Piece {
 	int i;
 	int j;
 	
-	// boolean firstMove = true;
+	boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {
 		this.i = i;
@@ -470,8 +607,8 @@ public class Piece {
 		this.side = side;
 	}
 	
-	public Node getPossibleMoves(int[] board) {
-		return new Node(new PVector(i, j - 1));
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
+		return new Node(new Cell(i, j - 1));
 	}
 	
 	public void show() {
@@ -482,9 +619,22 @@ public class Piece {
 		return BishopWhiteImg;
 	}
 
-	public void move(int x, int y) {
+	public void updateBoard(int[] board) {
+
+	}
+
+	public Cell move(int x, int y, int[] board, Piece[] myPieces) {
 		i = x;
 		j = y;
+		firstMove = false;
+		if (isEnemy(i, j, side, board)) {
+			return new Cell(i, j);
+		}
+		return null;
+	}
+
+	public int getId() {
+		return id;
 	}
 	
 }
@@ -507,18 +657,18 @@ class Queen extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
 
 			int move = 1;
 			while (inRange(i + a * move)) {
-				if (board[getIndex(i + a * move, j)] * side > 0) {
+				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i + a * move, j));
-				if (board[getIndex(i + a * move, j)] * side < 0) {
+				current = current.add(new Cell(i + a * move, j));
+				if (isEnemy(i + a * move, j, side, board)) {
 					break;
 				}
 				move += 1;
@@ -526,11 +676,11 @@ class Queen extends Piece {
 
 			move = 1;
 			while (inRange(j + a * move)) {
-				if (board[getIndex(i , j + a * move)] * side > 0) {
+				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i, j + a * move));
-				if (board[getIndex(i , j + a * move)] * side < 0) {
+				current = current.add(new Cell(i, j + a * move));
+				if (isEnemy(i, j + a * move, side, board)) {
 					break;
 				}
 				move += 1;
@@ -539,11 +689,11 @@ class Queen extends Piece {
 			for (int b = -1; b < 2; b += 2) {
 				move = 1;
 				while (inRange(i + a * move) && inRange(j + b * move)) {
-					if (board[getIndex(i + a * move, j + b * move)] * side > 0) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new PVector(i + a * move, j + b * move));
-					if (board[getIndex(i + a * move, j + b * move)] * side < 0) {
+					current = current.add(new Cell(i + a * move, j + b * move));
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
 						break;
 					}
 					move += 1;
@@ -565,12 +715,16 @@ class Queen extends Piece {
 		}
 		return img;
 	}
+
+	public int getId() {
+		return id;
+	}
 }
 public class Rook extends Piece {
 	
 	final static int value = 300;
 	final static int id = 2;
-	
+
 	public Rook(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -585,28 +739,28 @@ public class Rook extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	public Node getPossibleMoves(int[] board) {
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int k = -1; k < 2; k += 2) {
 			int move = 1;
 			while (inRange(i + k * move)) {
-				if (board[getIndex(i + k * move, j)] * side > 0) {
+				if (isMySide(i + k * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i + k * move, j));
-				if (board[getIndex(i + k * move, j)] * side < 0) {
+				current = current.add(new Cell(i + k * move, j));
+				if (isEnemy(i + k * move, j, side, board)) {
 					break;
 				}
 				move += 1;
 			}
 			move = 1;
 			while (inRange(j + k * move)) {
-				if (board[getIndex(i , j + k * move)] * side > 0) {
+				if (isMySide(i, j + k * move, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i, j + k * move));
-				if (board[getIndex(i , j + k * move)] * side < 0) {
+				current = current.add(new Cell(i, j + k * move));
+				if (isEnemy(i, j + k * move, side, board)) {
 					break;
 				}
 				move += 1;
@@ -626,6 +780,10 @@ public class Rook extends Piece {
 			img = RookBlackImg;
 		}
 		return img;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
   public void settings() { 	size(800, 800); }

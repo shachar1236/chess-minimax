@@ -17,18 +17,18 @@ public class Bishop extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	Node getPossibleMoves(int[] board) {
+	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
 			for (int b = -1; b < 2; b += 2) {
 				int move = 1;
 				while (inRange(i + a * move) && inRange(j + b * move)) {
-					if (board[getIndex(i + a * move, j + b * move)] * side > 0) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new PVector(i + a * move, j + b * move));
-					if (board[getIndex(i + a * move, j + b * move)] * side < 0) {
+					current = current.add(new Cell(i + a * move, j + b * move));
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
 						break;
 					}
 					move += 1;
@@ -49,5 +49,9 @@ public class Bishop extends Piece {
 			img = BishopBlackImg;
 		}
 		return img;
+	}
+
+	int getId() {
+		return id;
 	}
 }

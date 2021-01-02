@@ -7,6 +7,8 @@ boolean moving = false;
 Piece movingPiece;
 Node movingPiecePossibleMoves;
 
+int player = 0;
+
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -85,7 +87,7 @@ void draw() {
 		Node move = movingPiecePossibleMoves;
 		while(move != null) {
 			fill(0, 200, 0);
-			ellipse(move.data.x * cellSize + cellSize / 2, move.data.y * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
+			ellipse(move.data.i * cellSize + cellSize / 2, move.data.j * cellSize + cellSize / 2, cellSize / 2, cellSize / 2);
 			move = move.next;
 		}
 	}
@@ -112,34 +114,44 @@ int[] updateBoard(Piece[] p1, Piece[] p2) {
 	int[] newBoard = new int[rows*cols];
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < cols; j++) {
+			// if (board[getIndex(i, j)] != Pawn.EnPassant) {
 			newBoard[getIndex(i, j)] = 0;
+			// }
 		}
 	}
 	for (int i = 0; i < p1.length; i++) {
 		if (p1[i] != null) {
-			newBoard[getIndex(p1[i].i, p1[i].j)] = p1[i].id * p1[i].side;
+			newBoard[getIndex(p1[i].i, p1[i].j)] = p1[i].getId() * p1[i].side;
 		}
 	}
 	for (int i = 0; i < p2.length; i++) {
 		if (p2[i] != null) {
-			newBoard[getIndex(p2[i].i, p2[i].j)] = p2[i].id * p2[i].side;
+			newBoard[getIndex(p2[i].i, p2[i].j)] = p2[i].getId() * p2[i].side;
 		}
 	}
 	return newBoard;
 }
 
 void mousePressed() {
+ 	Piece[] playerPieces;
+
+	if (player == 0) {
+		playerPieces = white;
+	} else {
+		playerPieces = black;
+	}
+
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
 	
 	boolean valid = false;
 	Piece piece = null;
 	
-	for (int k = 0; k < white.length; k++) {
-		if (white[k] != null) {
-			if (white[k].i == i && white[k].j == j) {
+	for (int k = 0; k < playerPieces.length; k++) {
+		if (playerPieces[k] != null) {
+			if (playerPieces[k].i == i && playerPieces[k].j == j) {
 				valid = true;
-				piece = white[k];
+				piece = playerPieces[k];
 				break;
 			}
 		}
@@ -148,11 +160,24 @@ void mousePressed() {
 	if (valid) {
 		moving = true;
 		movingPiece = piece;
-		movingPiecePossibleMoves = piece.getPossibleMoves(board);
+		movingPiecePossibleMoves = piece.getPossibleMoves(board, playerPieces);
 	}
+
 }
 
 void mouseReleased() {
+
+	Piece[] playerPieces;
+	Piece[] enemyPieces;
+
+	if (player == 0) {
+		playerPieces = white;
+		enemyPieces = black;
+	} else {
+		playerPieces = black;
+		enemyPieces = white;
+	}
+
 	moving = false;
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
@@ -160,7 +185,7 @@ void mouseReleased() {
 	boolean valid = false;
 	Node move = movingPiecePossibleMoves;
 	while(move != null) {
-		if (move.data.x == i && move.data.y == j) {
+		if (move.data.i == i && move.data.j == j) {
 			valid = true;
 			// movingPiece.firstMove = false;
 			break;
@@ -169,28 +194,48 @@ void mouseReleased() {
 	}
 	
 	if (inRange(i) && inRange(j) && valid) {
-		if (board[getIndex(i, j)] < 0) {
-			Piece piece = null;
-			for (int k = 0; k <  black.length; k++) {
-				if (black[k] != null) {
-					if (black[k].i == i && black[k].j == j) {
-						black[k] = null;
-						// piece = black[i];
+		Cell dead = movingPiece.move(i, j, board, playerPieces);
+		if (dead != null) {
+			for (int k = 0; k <  enemyPieces.length; k++) {
+				if (enemyPieces[k] != null) {
+					if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+						enemyPieces[k] = null;
 					}
 				}
 			}
-			board[getIndex(i, j)] = 0;
-
-			movingPiece.move(i, j);
-			// movingPiece.i = i;
-			// movingPiece.j = j;
-		} else if (board[getIndex(i, j)] == 0) {
-			movingPiece.move(i, j);
-			// movingPiece.i = i;
-			// movingPiece.j = j;
 		}
+		board = updateBoard(white, black);
+		movingPiece.updateBoard(board);
+		player = (player + 1) % 2;
+		// if (board[getIndex(i, j)] < 0) {
+		// 	Piece piece = null;
+		// 	for (int k = 0; k <  black.length; k++) {
+		// 		if (black[k] != null) {
+		// 			if (black[k].i == i && black[k].j == j) {
+		// 				black[k] = null;
+		// 				// piece = black[i];
+		// 			}
+		// 		}
+		// 	}
+		// 	board[getIndex(i, j)] = 0;
+
+		// 	movingPiece.move(i, j, board, white);
+		// 	// movingPiece.i = i;
+			// movingPiece.j = j;
+		// } else if (board[getIndex(i, j)] == 0) {
+		// 	movingPiece.move(i, j, board, white);
+		// 	// movingPiece.i = i;
+		// 	// movingPiece.j = j;
+		// }
 	}
-	board = updateBoard(white, black);
+	println();
+	for (int a = 0; a < 8; a++) {
+		for (int b = 0; b < 8; b++) {
+			print(board[getIndex(b, a)]);
+			print(" ");
+		}
+		println();
+	}
 }
 
 boolean inRange(int num) {
@@ -199,4 +244,24 @@ boolean inRange(int num) {
 
 int getIndex(int i, int j) {
 	return i * rows + j;
+}
+
+boolean isEmpty(int i, int j, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value == 0 || Math.abs(value) == Pawn.EnPassant;
+}
+
+boolean isEmptyOrEnemy(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side < 1 || Math.abs(value) == Pawn.EnPassant;
+}
+
+boolean isEnemy(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side < 0 && Math.abs(value) != Pawn.EnPassant;
+}
+
+boolean isMySide(int i, int j, int side, int[] board) {
+	int value = board[getIndex(i, j)];
+	return value * side > 0 && Math.abs(value) != Pawn.EnPassant;
 }

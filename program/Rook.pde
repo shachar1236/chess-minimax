@@ -2,7 +2,7 @@ public class Rook extends Piece {
 	
 	final static int value = 300;
 	final static int id = 2;
-	
+
 	public Rook(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -17,28 +17,28 @@ public class Rook extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	Node getPossibleMoves(int[] board) {
+	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int k = -1; k < 2; k += 2) {
 			int move = 1;
 			while (inRange(i + k * move)) {
-				if (board[getIndex(i + k * move, j)] * side > 0) {
+				if (isMySide(i + k * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i + k * move, j));
-				if (board[getIndex(i + k * move, j)] * side < 0) {
+				current = current.add(new Cell(i + k * move, j));
+				if (isEnemy(i + k * move, j, side, board)) {
 					break;
 				}
 				move += 1;
 			}
 			move = 1;
 			while (inRange(j + k * move)) {
-				if (board[getIndex(i , j + k * move)] * side > 0) {
+				if (isMySide(i, j + k * move, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i, j + k * move));
-				if (board[getIndex(i , j + k * move)] * side < 0) {
+				current = current.add(new Cell(i, j + k * move));
+				if (isEnemy(i, j + k * move, side, board)) {
 					break;
 				}
 				move += 1;
@@ -58,5 +58,9 @@ public class Rook extends Piece {
 			img = RookBlackImg;
 		}
 		return img;
+	}
+
+	int getId() {
+		return id;
 	}
 }

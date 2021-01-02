@@ -1,14 +1,14 @@
 public class Node {
 	
-	PVector data;
+	Cell data;
 	Node next;
 	
-	public Node(PVector data) {
+	public Node(Cell data) {
 		this.data = data;
 		next = null;
 	}
 	
-	public Node add(PVector n) {
+	public Node add(Cell n) {
 		if (data == null) {
 			data = n;
 			return this;

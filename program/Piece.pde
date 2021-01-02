@@ -10,7 +10,7 @@ public class Piece {
 	int i;
 	int j;
 	
-	// boolean firstMove = true;
+	boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {
 		this.i = i;
@@ -18,8 +18,8 @@ public class Piece {
 		this.side = side;
 	}
 	
-	public Node getPossibleMoves(int[] board) {
-		return new Node(new PVector(i, j - 1));
+	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
+		return new Node(new Cell(i, j - 1));
 	}
 	
 	public void show() {
@@ -30,9 +30,22 @@ public class Piece {
 		return BishopWhiteImg;
 	}
 
-	void move(int x, int y) {
+	void updateBoard(int[] board) {
+
+	}
+
+	Cell move(int x, int y, int[] board, Piece[] myPieces) {
 		i = x;
 		j = y;
+		firstMove = false;
+		if (isEnemy(i, j, side, board)) {
+			return new Cell(i, j);
+		}
+		return null;
+	}
+
+	int getId() {
+		return id;
 	}
 	
 }

@@ -17,18 +17,18 @@ class Queen extends Piece {
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
 
-	Node getPossibleMoves(int[] board) {
+	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
 		for (int a = -1; a < 2; a += 2) {
 
 			int move = 1;
 			while (inRange(i + a * move)) {
-				if (board[getIndex(i + a * move, j)] * side > 0) {
+				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i + a * move, j));
-				if (board[getIndex(i + a * move, j)] * side < 0) {
+				current = current.add(new Cell(i + a * move, j));
+				if (isEnemy(i + a * move, j, side, board)) {
 					break;
 				}
 				move += 1;
@@ -36,11 +36,11 @@ class Queen extends Piece {
 
 			move = 1;
 			while (inRange(j + a * move)) {
-				if (board[getIndex(i , j + a * move)] * side > 0) {
+				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				current = current.add(new PVector(i, j + a * move));
-				if (board[getIndex(i , j + a * move)] * side < 0) {
+				current = current.add(new Cell(i, j + a * move));
+				if (isEnemy(i, j + a * move, side, board)) {
 					break;
 				}
 				move += 1;
@@ -49,11 +49,11 @@ class Queen extends Piece {
 			for (int b = -1; b < 2; b += 2) {
 				move = 1;
 				while (inRange(i + a * move) && inRange(j + b * move)) {
-					if (board[getIndex(i + a * move, j + b * move)] * side > 0) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new PVector(i + a * move, j + b * move));
-					if (board[getIndex(i + a * move, j + b * move)] * side < 0) {
+					current = current.add(new Cell(i + a * move, j + b * move));
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
 						break;
 					}
 					move += 1;
@@ -74,5 +74,9 @@ class Queen extends Piece {
 			img = QueenBlackImg;
 		}
 		return img;
+	}
+
+	int getId() {
+		return id;
 	}
 }
