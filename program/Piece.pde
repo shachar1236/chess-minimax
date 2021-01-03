@@ -9,7 +9,8 @@ public class Piece {
 	
 	int i;
 	int j;
-	
+
+	boolean needToPromote = false;
 	boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {

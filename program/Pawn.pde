@@ -64,16 +64,28 @@ public class Pawn extends Piece {
 	}
 
 	Cell move(int x, int y, int board[], Piece[] myPieces) {
+
 		if (Math.abs(y - j) == 2) {
-			println("here");
 			putEnPassant = new Cell(x, j - side);
 		}
 
 		Cell result = super.move(x, y, board, myPieces);
 
+		// println((8 - 1) % 9);
+		print("j: ");
+		println(j);
+		print("end: ");
+		println((cols + side) % (cols + 1));
+		if (j == (cols + side) % (cols + 1)) {
+			println("here");
+			needToPromote = true;
+		}
+
+		
 		if (result != null) {
 			return result;
 		}
+
 
 		if (board[getIndex(i, j)] == EnPassant * side * -1) {
 			return new Cell(i, j + side);

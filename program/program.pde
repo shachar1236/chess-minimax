@@ -7,8 +7,6 @@ boolean moving = false;
 Piece movingPiece;
 Node movingPiecePossibleMoves;
 
-int player = 0;
-
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -133,13 +131,7 @@ int[] updateBoard(Piece[] p1, Piece[] p2) {
 }
 
 void mousePressed() {
- 	Piece[] playerPieces;
-
-	if (player == 0) {
-		playerPieces = white;
-	} else {
-		playerPieces = black;
-	}
+ 	Piece[] playerPieces = white;
 
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
@@ -167,16 +159,8 @@ void mousePressed() {
 
 void mouseReleased() {
 
-	Piece[] playerPieces;
-	Piece[] enemyPieces;
-
-	if (player == 0) {
-		playerPieces = white;
-		enemyPieces = black;
-	} else {
-		playerPieces = black;
-		enemyPieces = white;
-	}
+	Piece[] playerPieces = white;
+	Piece[] enemyPieces = black;
 
 	moving = false;
 	int i = floor(mouseX / cellSize);
@@ -195,6 +179,17 @@ void mouseReleased() {
 	
 	if (inRange(i) && inRange(j) && valid) {
 		Cell dead = movingPiece.move(i, j, board, playerPieces);
+		if (movingPiece.getId() == Pawn.id) {
+			if (movingPiece.needToPromote) {
+				for (int k = 0; k <  playerPieces.length; k++) {
+					if (playerPieces[k] != null) {
+						if (playerPieces[k].i == movingPiece.i && playerPieces[k].j == movingPiece.j) {
+							playerPieces[k] = new Queen(movingPiece.i, movingPiece.j, movingPiece.side);
+						}
+					}
+				}
+			}
+		}
 		if (dead != null) {
 			for (int k = 0; k <  enemyPieces.length; k++) {
 				if (enemyPieces[k] != null) {
@@ -206,27 +201,6 @@ void mouseReleased() {
 		}
 		board = updateBoard(white, black);
 		movingPiece.updateBoard(board);
-		player = (player + 1) % 2;
-		// if (board[getIndex(i, j)] < 0) {
-		// 	Piece piece = null;
-		// 	for (int k = 0; k <  black.length; k++) {
-		// 		if (black[k] != null) {
-		// 			if (black[k].i == i && black[k].j == j) {
-		// 				black[k] = null;
-		// 				// piece = black[i];
-		// 			}
-		// 		}
-		// 	}
-		// 	board[getIndex(i, j)] = 0;
-
-		// 	movingPiece.move(i, j, board, white);
-		// 	// movingPiece.i = i;
-			// movingPiece.j = j;
-		// } else if (board[getIndex(i, j)] == 0) {
-		// 	movingPiece.move(i, j, board, white);
-		// 	// movingPiece.i = i;
-		// 	// movingPiece.j = j;
-		// }
 	}
 	println();
 	for (int a = 0; a < 8; a++) {

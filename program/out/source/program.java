@@ -23,8 +23,6 @@ boolean moving = false;
 Piece movingPiece;
 Node movingPiecePossibleMoves;
 
-int player = 0;
-
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -149,13 +147,7 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 }
 
 public void mousePressed() {
- 	Piece[] playerPieces;
-
-	if (player == 0) {
-		playerPieces = white;
-	} else {
-		playerPieces = black;
-	}
+ 	Piece[] playerPieces = white;
 
 	int i = floor(mouseX / cellSize);
 	int j = floor(mouseY / cellSize);
@@ -183,16 +175,8 @@ public void mousePressed() {
 
 public void mouseReleased() {
 
-	Piece[] playerPieces;
-	Piece[] enemyPieces;
-
-	if (player == 0) {
-		playerPieces = white;
-		enemyPieces = black;
-	} else {
-		playerPieces = black;
-		enemyPieces = white;
-	}
+	Piece[] playerPieces = white;
+	Piece[] enemyPieces = black;
 
 	moving = false;
 	int i = floor(mouseX / cellSize);
@@ -211,6 +195,17 @@ public void mouseReleased() {
 	
 	if (inRange(i) && inRange(j) && valid) {
 		Cell dead = movingPiece.move(i, j, board, playerPieces);
+		if (movingPiece.getId() == Pawn.id) {
+			if (movingPiece.needToPromote) {
+				for (int k = 0; k <  playerPieces.length; k++) {
+					if (playerPieces[k] != null) {
+						if (playerPieces[k].i == movingPiece.i && playerPieces[k].j == movingPiece.j) {
+							playerPieces[k] = new Queen(movingPiece.i, movingPiece.j, movingPiece.side);
+						}
+					}
+				}
+			}
+		}
 		if (dead != null) {
 			for (int k = 0; k <  enemyPieces.length; k++) {
 				if (enemyPieces[k] != null) {
@@ -222,27 +217,6 @@ public void mouseReleased() {
 		}
 		board = updateBoard(white, black);
 		movingPiece.updateBoard(board);
-		player = (player + 1) % 2;
-		// if (board[getIndex(i, j)] < 0) {
-		// 	Piece piece = null;
-		// 	for (int k = 0; k <  black.length; k++) {
-		// 		if (black[k] != null) {
-		// 			if (black[k].i == i && black[k].j == j) {
-		// 				black[k] = null;
-		// 				// piece = black[i];
-		// 			}
-		// 		}
-		// 	}
-		// 	board[getIndex(i, j)] = 0;
-
-		// 	movingPiece.move(i, j, board, white);
-		// 	// movingPiece.i = i;
-			// movingPiece.j = j;
-		// } else if (board[getIndex(i, j)] == 0) {
-		// 	movingPiece.move(i, j, board, white);
-		// 	// movingPiece.i = i;
-		// 	// movingPiece.j = j;
-		// }
 	}
 	println();
 	for (int a = 0; a < 8; a++) {
@@ -566,16 +540,28 @@ public class Pawn extends Piece {
 	}
 
 	public Cell move(int x, int y, int board[], Piece[] myPieces) {
+
 		if (Math.abs(y - j) == 2) {
-			println("here");
 			putEnPassant = new Cell(x, j - side);
 		}
 
 		Cell result = super.move(x, y, board, myPieces);
 
+		// println((8 - 1) % 9);
+		print("j: ");
+		println(j);
+		print("end: ");
+		println((cols + side) % (cols + 1));
+		if (j == (cols + side) % (cols + 1)) {
+			println("here");
+			needToPromote = true;
+		}
+
+		
 		if (result != null) {
 			return result;
 		}
+
 
 		if (board[getIndex(i, j)] == EnPassant * side * -1) {
 			return new Cell(i, j + side);
@@ -598,7 +584,8 @@ public class Piece {
 	
 	int i;
 	int j;
-	
+
+	boolean needToPromote = false;
 	boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {
