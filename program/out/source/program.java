@@ -23,6 +23,8 @@ boolean moving = false;
 Piece movingPiece;
 Node movingPiecePossibleMoves;
 
+boolean promoting = false;
+
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -122,6 +124,17 @@ public void draw() {
 			black[i].show();
 		}
 	}
+	if (promoting) {
+		fill(200, 20, 20);
+		textSize(40);
+		text("Promote Pawn", width / 2 - 135, 300);
+		textSize(30);
+		text("Press promotion number", width / 2 - 195, 350);
+		text("1 - Queen", width / 2 - 115, 400);
+		text("2 - Knight", width / 2 - 115, 450);
+		text("3 - Bishop", width / 2 - 115, 500);
+		text("4 - Rook", width / 2 - 115, 550);
+	}
 }
 
 public int[] updateBoard(Piece[] p1, Piece[] p2) {
@@ -147,28 +160,30 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 }
 
 public void mousePressed() {
- 	Piece[] playerPieces = white;
+	if (!promoting) {
+		Piece[] playerPieces = white;
 
-	int i = floor(mouseX / cellSize);
-	int j = floor(mouseY / cellSize);
-	
-	boolean valid = false;
-	Piece piece = null;
-	
-	for (int k = 0; k < playerPieces.length; k++) {
-		if (playerPieces[k] != null) {
-			if (playerPieces[k].i == i && playerPieces[k].j == j) {
-				valid = true;
-				piece = playerPieces[k];
-				break;
+		int i = floor(mouseX / cellSize);
+		int j = floor(mouseY / cellSize);
+		
+		boolean valid = false;
+		Piece piece = null;
+		
+		for (int k = 0; k < playerPieces.length; k++) {
+			if (playerPieces[k] != null) {
+				if (playerPieces[k].i == i && playerPieces[k].j == j) {
+					valid = true;
+					piece = playerPieces[k];
+					break;
+				}
 			}
 		}
-	}
-	
-	if (valid) {
-		moving = true;
-		movingPiece = piece;
-		movingPiecePossibleMoves = piece.getPossibleMoves(board, playerPieces);
+		
+		if (valid) {
+			moving = true;
+			movingPiece = piece;
+			movingPiecePossibleMoves = piece.getPossibleMoves(board, playerPieces);
+		}
 	}
 
 }
@@ -197,13 +212,14 @@ public void mouseReleased() {
 		Cell dead = movingPiece.move(i, j, board, playerPieces);
 		if (movingPiece.getId() == Pawn.id) {
 			if (movingPiece.needToPromote) {
-				for (int k = 0; k <  playerPieces.length; k++) {
-					if (playerPieces[k] != null) {
-						if (playerPieces[k].i == movingPiece.i && playerPieces[k].j == movingPiece.j) {
-							playerPieces[k] = new Queen(movingPiece.i, movingPiece.j, movingPiece.side);
-						}
-					}
-				}
+				promoting = true;
+				// for (int k = 0; k <  playerPieces.length; k++) {
+				// 	if (playerPieces[k] != null) {
+				// 		if (playerPieces[k].i == movingPiece.i && playerPieces[k].j == movingPiece.j) {
+				// 			playerPieces[k] = new Queen(movingPiece.i, movingPiece.j, movingPiece.side);
+				// 		}
+				// 	}
+				// }
 			}
 		}
 		if (dead != null) {
@@ -225,6 +241,45 @@ public void mouseReleased() {
 			print(" ");
 		}
 		println();
+	}
+}
+
+public void keyPressed() {
+	if (promoting) {
+		if (key == '1') {
+			for (int k = 0; k <  white.length; k++) {
+				if (white[k] != null) {
+					if (white[k].i == movingPiece.i && white[k].j == movingPiece.j) {
+						white[k] = new Queen(movingPiece.i, movingPiece.j, movingPiece.side);
+					}
+				}
+			}
+		} else if (key == '2') {
+			for (int k = 0; k <  white.length; k++) {
+				if (white[k] != null) {
+					if (white[k].i == movingPiece.i && white[k].j == movingPiece.j) {
+						white[k] = new Knight(movingPiece.i, movingPiece.j, movingPiece.side);
+					}
+				}
+			}
+		} else if (key == '3') {
+			for (int k = 0; k <  white.length; k++) {
+				if (white[k] != null) {
+					if (white[k].i == movingPiece.i && white[k].j == movingPiece.j) {
+						white[k] = new Bishop(movingPiece.i, movingPiece.j, movingPiece.side);
+					}
+				}
+			}
+		} else if (key == '4') {
+			for (int k = 0; k <  white.length; k++) {
+				if (white[k] != null) {
+					if (white[k].i == movingPiece.i && white[k].j == movingPiece.j) {
+						white[k] = new Rook(movingPiece.i, movingPiece.j, movingPiece.side);
+					}
+				}
+			}
+		}
+		promoting = false;
 	}
 }
 
@@ -548,10 +603,10 @@ public class Pawn extends Piece {
 		Cell result = super.move(x, y, board, myPieces);
 
 		// println((8 - 1) % 9);
-		print("j: ");
-		println(j);
-		print("end: ");
-		println((cols + side) % (cols + 1));
+		// print("j: ");
+		// println(j);
+		// print("end: ");
+		// println((cols + side) % (cols + 1));
 		if (j == (cols + side) % (cols + 1)) {
 			println("here");
 			needToPromote = true;

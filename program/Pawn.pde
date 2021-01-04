@@ -72,10 +72,10 @@ public class Pawn extends Piece {
 		Cell result = super.move(x, y, board, myPieces);
 
 		// println((8 - 1) % 9);
-		print("j: ");
-		println(j);
-		print("end: ");
-		println((cols + side) % (cols + 1));
+		// print("j: ");
+		// println(j);
+		// print("end: ");
+		// println((cols + side) % (cols + 1));
 		if (j == (cols + side) % (cols + 1)) {
 			println("here");
 			needToPromote = true;
