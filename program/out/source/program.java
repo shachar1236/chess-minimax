@@ -16,7 +16,8 @@ public class program extends PApplet {
 
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 1;
+final int lookAhed = 4;
+final int promoteReward = 500;
 
 int cellSize;
 
@@ -161,8 +162,24 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 }
 
 public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] black, int score) {
+	boolean dontHaveBlackKing = true;
+	boolean dontHaveWhiteKing = true;
+	for (int i = 0; i < board.length; i++) {
+		if (board[i] == - King.id) {
+			dontHaveBlackKing = false;
+		} else if (board[i] == King.id) {
+			dontHaveWhiteKing = false;
+		}
+	}
+	
+	if (dontHaveBlackKing) {
+		return - King.value;
+	} else if (dontHaveWhiteKing) {
+		return King.value;
+	}
+	
 	if (depth + 1 > lookAhed) {
-		return score;
+		return score / depth;
 	}
 	
 	if (maximizing) {
@@ -187,6 +204,7 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					if (myPieces[i].getId() == Pawn.id) {
 						if (myPieces[i].needToPromote()) {
 							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							currentScore += promoteReward;
 						}
 					}
 					
@@ -204,7 +222,7 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(1, false, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, false, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = max(best, value);
 					
@@ -234,6 +252,7 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					if (myPieces[i].getId() == Pawn.id) {
 						if (myPieces[i].needToPromote()) {
 							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							currentScore -= promoteReward;
 						}
 					}
 					
@@ -251,7 +270,7 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(1, true, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, true, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = min(best, value);
 					
@@ -502,7 +521,7 @@ public boolean isMySide(int i, int j, int side, int[] board) {
 }
 public class Bishop extends Piece {
 	
-	final static int value = 200;
+	final static int value = 300;
 	final static int id = 4;
 	
 	public Bishop(int i, int j, int side) {
@@ -579,7 +598,7 @@ public class Cell {
 }
 class King extends Piece {
 	
-	final static int value = 1000;
+	final static int value = 10000;
 	final static int id = 6;
 	
 	public King(int i, int j, int side) {
@@ -622,7 +641,7 @@ class King extends Piece {
 		if (firstMove) {
 			for (int a = 0; a < myPieces.length; a++) {
 				if (myPieces[a] != null) {
-					if (myPieces[a].getId() == Rook.id) {
+					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							current = current.add(new Cell(i + 2 * dir, j));
@@ -642,8 +661,10 @@ class King extends Piece {
 		if (Math.abs(i - x) == 2) {
 			int dir = Math.abs(i - x) / (x - i);
 			for (int a = 0; a < myPieces.length; a++) {
-				if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) * dir > 0) {
-					myPieces[a].i = i + dir;
+				if (myPieces[a] != null) {
+					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) * dir > 0) {
+						myPieces[a].i = i + dir;
+					}
 				}
 			}
 		}
@@ -668,7 +689,7 @@ class King extends Piece {
 }
 public class Knight extends Piece {
 	
-	final static int value = 200;
+	final static int value = 300;
 	final static int id = 3;
 	
 	public Knight(int i, int j, int side) {
@@ -927,7 +948,7 @@ public class Piece {
 }
 class Queen extends Piece {
 	
-	final static int value = 500;
+	final static int value = 900;
 	final static int id = 5;
 	
 	public Queen(int i, int j, int side) {
@@ -1019,7 +1040,7 @@ class Queen extends Piece {
 }
 public class Rook extends Piece {
 	
-	final static int value = 300;
+	final static int value = 500;
 	final static int id = 2;
 	
 	public Rook(int i, int j, int side) {

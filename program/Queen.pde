@@ -1,6 +1,6 @@
 class Queen extends Piece {
 	
-	final static int value = 500;
+	final static int value = 900;
 	final static int id = 5;
 	
 	public Queen(int i, int j, int side) {

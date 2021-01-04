@@ -1,6 +1,6 @@
 public class Rook extends Piece {
 	
-	final static int value = 300;
+	final static int value = 500;
 	final static int id = 2;
 	
 	public Rook(int i, int j, int side) {

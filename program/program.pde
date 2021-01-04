@@ -1,6 +1,7 @@
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 1;
+final int lookAhed = 4;
+final int promoteReward = 500;
 
 int cellSize;
 
@@ -145,8 +146,24 @@ int[] updateBoard(Piece[] p1, Piece[] p2) {
 }
 
 int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] black, int score) {
+	boolean dontHaveBlackKing = true;
+	boolean dontHaveWhiteKing = true;
+	for (int i = 0; i < board.length; i++) {
+		if (board[i] == - King.id) {
+			dontHaveBlackKing = false;
+		} else if (board[i] == King.id) {
+			dontHaveWhiteKing = false;
+		}
+	}
+	
+	if (dontHaveBlackKing) {
+		return - King.value;
+	} else if (dontHaveWhiteKing) {
+		return King.value;
+	}
+	
 	if (depth + 1 > lookAhed) {
-		return score;
+		return score / depth;
 	}
 	
 	if (maximizing) {
@@ -171,6 +188,7 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 					if (myPieces[i].getId() == Pawn.id) {
 						if (myPieces[i].needToPromote()) {
 							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							currentScore += promoteReward;
 						}
 					}
 					
@@ -188,7 +206,7 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(1, false, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, false, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = max(best, value);
 					
@@ -218,6 +236,7 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 					if (myPieces[i].getId() == Pawn.id) {
 						if (myPieces[i].needToPromote()) {
 							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							currentScore -= promoteReward;
 						}
 					}
 					
@@ -235,7 +254,7 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(1, true, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, true, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = min(best, value);
 					
