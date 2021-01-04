@@ -2,9 +2,15 @@ public class Rook extends Piece {
 	
 	final static int value = 300;
 	final static int id = 2;
-
+	
 	public Rook(int i, int j, int side) {
 		super(i, j, side);
+	}
+	
+	Piece clone() {
+		Rook newPiece = new Rook(i, j, side);
+		newPiece.firstMove = firstMove;
+		return newPiece;
 	}
 	
 	public void show() {
@@ -16,13 +22,13 @@ public class Rook extends Piece {
 		}
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
-
+	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
-		for (int k = -1; k < 2; k += 2) {
+		for (int k = - 1; k < 2; k += 2) {
 			int move = 1;
-			while (inRange(i + k * move)) {
+			while(inRange(i + k * move)) {
 				if (isMySide(i + k * move, j, side, board)) {
 					break;
 				}
@@ -33,7 +39,7 @@ public class Rook extends Piece {
 				move += 1;
 			}
 			move = 1;
-			while (inRange(j + k * move)) {
+			while(inRange(j + k * move)) {
 				if (isMySide(i, j + k * move, side, board)) {
 					break;
 				}
@@ -59,8 +65,12 @@ public class Rook extends Piece {
 		}
 		return img;
 	}
-
+	
 	int getId() {
 		return id;
+	}
+	
+	int getValue() {
+		return value;
 	}
 }

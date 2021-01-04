@@ -9,14 +9,19 @@ public class Piece {
 	
 	int i;
 	int j;
-
-	boolean needToPromote = false;
+	
 	boolean firstMove = true;
 	
 	public Piece(int i, int j, int side) {
 		this.i = i;
 		this.j = j;
 		this.side = side;
+	}
+	
+	Piece clone() {
+		Piece newPiece = new Piece(i, j, side);
+		newPiece.firstMove = firstMove;
+		return newPiece;
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
@@ -27,14 +32,18 @@ public class Piece {
 		
 	}
 	
+	boolean needToPromote() {
+		return false;
+	}
+	
 	PImage getImg() {
 		return BishopWhiteImg;
 	}
-
+	
 	void updateBoard(int[] board) {
-
+		
 	}
-
+	
 	Cell move(int x, int y, int[] board, Piece[] myPieces) {
 		i = x;
 		j = y;
@@ -44,9 +53,13 @@ public class Piece {
 		}
 		return null;
 	}
-
+	
 	int getId() {
 		return id;
+	}
+	
+	int getValue() {
+		return value;
 	}
 	
 }

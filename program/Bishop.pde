@@ -7,6 +7,16 @@ public class Bishop extends Piece {
 		super(i, j, side);
 	}
 	
+	Piece clone() {
+		Bishop newPiece = new Bishop(i, j, side);
+		newPiece.firstMove = firstMove;
+		return newPiece;
+	}
+	
+	int getValue() {
+		return value;
+	}
+	
 	public void show() {
 		PImage img;
 		if (side == 1) {
@@ -16,14 +26,14 @@ public class Bishop extends Piece {
 		}
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
 	}
-
+	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
-		for (int a = -1; a < 2; a += 2) {
-			for (int b = -1; b < 2; b += 2) {
+		for (int a = - 1; a < 2; a += 2) {
+			for (int b = - 1; b < 2; b += 2) {
 				int move = 1;
-				while (inRange(i + a * move) && inRange(j + b * move)) {
+				while(inRange(i + a * move) && inRange(j + b * move)) {
 					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
@@ -50,7 +60,7 @@ public class Bishop extends Piece {
 		}
 		return img;
 	}
-
+	
 	int getId() {
 		return id;
 	}
