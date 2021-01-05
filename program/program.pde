@@ -163,8 +163,14 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 	}
 	
 	if (depth + 1 > lookAhed) {
-		return score / depth;
+		return score;
 	}
+
+	// if (random(0, 1) < 0.005) {
+	// 	println("score: " + score);
+	// 	println("depth: " + depth);
+	// 	println("maximizing: " + maximizing);
+	// }
 	
 	if (maximizing) {
 		int best = - 1000000;
@@ -206,7 +212,7 @@ int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] b
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(depth + 1, false, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, false, newBoard, enemyPieces, myPieces, currentScore);
 					
 					best = max(best, value);
 					
