@@ -30,16 +30,7 @@ public class Pawn extends Piece {
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
-		if (inRange(j - side)) {
-			if (isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side));
-			}
-		}
-		if (inRange(j - side * 2) && firstMove) {
-			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side * 2));
-			}
-		}
+
 		for (int k = - 1; k < 2; k += 2) {
 			if (inRange(i + k) && inRange(j - side)) {
 				if (isEnemy(i + k, j - side, side, board) || board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
@@ -47,6 +38,19 @@ public class Pawn extends Piece {
 				}
 			}
 		}
+
+		if (inRange(j - side)) {
+			if (isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side));
+			}
+		}
+
+		if (inRange(j - side * 2) && firstMove) {
+			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side * 2));
+			}
+		}
+
 		if (first.data == null) {
 			return null;
 		}

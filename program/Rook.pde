@@ -27,26 +27,35 @@ public class Rook extends Piece {
 		Node first = new Node(null);
 		Node current = first;
 		for (int k = - 1; k < 2; k += 2) {
+
 			int move = 1;
+
 			while(inRange(i + k * move)) {
+
 				if (isMySide(i + k * move, j, side, board)) {
 					break;
 				}
+
 				current = current.add(new Cell(i + k * move, j));
 				if (isEnemy(i + k * move, j, side, board)) {
 					break;
 				}
+
 				move += 1;
 			}
+
 			move = 1;
 			while(inRange(j + k * move)) {
+
 				if (isMySide(i, j + k * move, side, board)) {
 					break;
 				}
+				
 				current = current.add(new Cell(i, j + k * move));
 				if (isEnemy(i, j + k * move, side, board)) {
 					break;
 				}
+
 				move += 1;
 			}
 		}

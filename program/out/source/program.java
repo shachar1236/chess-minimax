@@ -17,7 +17,7 @@ public class program extends PApplet {
 final int rows = 8;
 final int cols = 8;
 final int lookAhed = 4;
-final int promoteReward = 500;
+final int promoteReward = 200;
 
 int cellSize;
 
@@ -42,17 +42,6 @@ PImage KingBlackImg;
 PImage QueenBlackImg;
 
 int board[] = new int[rows * cols];
-
-// int[][] board = {
-// 	{ - Rook.id, - Knight.id, - Bishop.id, - Queen.id, - King.id, - Bishop.id, - Knight.id, - Rook.id} ,
-// 	{ - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id, - Pawn.id} ,
-// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
-// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
-// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
-// 	{0, 0, 0, 0, 0, 0, 0, 0} ,
-// 	{Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id, Pawn.id} ,
-// 	{Rook.id, Knight.id, Bishop.id, King.id, Queen.id, Bishop.id, Knight.id, Rook.id}
-// };
 
 Piece[] white = {
 	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
@@ -161,7 +150,7 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 	return newBoard;
 }
 
-public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Piece[] black, int score) {
+public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Piece[] white, Piece[] black, int score) {
 	boolean dontHaveBlackKing = true;
 	boolean dontHaveWhiteKing = true;
 	for (int i = 0; i < board.length; i++) {
@@ -228,9 +217,16 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(depth + 1, false, newBoard, enemyPieces, myPieces, currentScore);
+					int value = minimax(depth + 1, alpha, beta, false, newBoard, enemyPieces, myPieces, currentScore);
 					
 					best = max(best, value);
+
+					alpha = max(alpha,  value);
+
+					if (beta < alpha + 1) {
+						// println(score);
+						break;
+					}
 					
 					move = move.next;
 				}
@@ -276,9 +272,15 @@ public int minimax(int depth, boolean maximizing, int[] board, Piece[] white, Pi
 					newBoard = updateBoard(myPieces, enemyPieces);
 					myPieces[i].updateBoard(newBoard);
 					
-					int value = minimax(depth + 1, true, newBoard, myPieces, enemyPieces, currentScore);
+					int value = minimax(depth + 1, alpha, beta, true, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = min(best, value);
+
+					beta = min(beta, value);
+
+					if (beta < alpha + 1) {
+						break;
+					}
 					
 					move = move.next;
 				}
@@ -338,7 +340,7 @@ public PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = minimax(1, false, newBoard, myPieces, enemyPieces, score);
+				int value = minimax(1, -1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
 				
 				if (value > best) {
 					best = value;
@@ -810,16 +812,7 @@ public class Pawn extends Piece {
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
 		Node first = new Node(null);
 		Node current = first;
-		if (inRange(j - side)) {
-			if (isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side));
-			}
-		}
-		if (inRange(j - side * 2) && firstMove) {
-			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side * 2));
-			}
-		}
+
 		for (int k = - 1; k < 2; k += 2) {
 			if (inRange(i + k) && inRange(j - side)) {
 				if (isEnemy(i + k, j - side, side, board) || board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
@@ -827,6 +820,19 @@ public class Pawn extends Piece {
 				}
 			}
 		}
+
+		if (inRange(j - side)) {
+			if (isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side));
+			}
+		}
+
+		if (inRange(j - side * 2) && firstMove) {
+			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
+				current = current.add(new Cell(i, j - side * 2));
+			}
+		}
+
 		if (first.data == null) {
 			return null;
 		}
@@ -1073,26 +1079,35 @@ public class Rook extends Piece {
 		Node first = new Node(null);
 		Node current = first;
 		for (int k = - 1; k < 2; k += 2) {
+
 			int move = 1;
+
 			while(inRange(i + k * move)) {
+
 				if (isMySide(i + k * move, j, side, board)) {
 					break;
 				}
+
 				current = current.add(new Cell(i + k * move, j));
 				if (isEnemy(i + k * move, j, side, board)) {
 					break;
 				}
+
 				move += 1;
 			}
+
 			move = 1;
 			while(inRange(j + k * move)) {
+
 				if (isMySide(i, j + k * move, side, board)) {
 					break;
 				}
+				
 				current = current.add(new Cell(i, j + k * move));
 				if (isEnemy(i, j + k * move, side, board)) {
 					break;
 				}
+
 				move += 1;
 			}
 		}
