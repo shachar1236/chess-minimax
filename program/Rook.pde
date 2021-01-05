@@ -24,45 +24,47 @@ public class Rook extends Piece {
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
-		for (int k = - 1; k < 2; k += 2) {
-
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		for (int a = - 1; a < 2; a += 2) {
+			
 			int move = 1;
-
-			while(inRange(i + k * move)) {
-
-				if (isMySide(i + k * move, j, side, board)) {
+			while(inRange(i + a * move)) {
+				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-
-				current = current.add(new Cell(i + k * move, j));
-				if (isEnemy(i + k * move, j, side, board)) {
+				if (isEnemy(i + a * move, j, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i + a * move, j));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i + a * move, j));
 				}
-
 				move += 1;
 			}
-
+			
 			move = 1;
-			while(inRange(j + k * move)) {
-
-				if (isMySide(i, j + k * move, side, board)) {
+			while(inRange(j + a * move)) {
+				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				
-				current = current.add(new Cell(i, j + k * move));
-				if (isEnemy(i, j + k * move, side, board)) {
+				if (isEnemy(i, j + a * move, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i, j + a * move));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i, j + a * move));
 				}
-
 				move += 1;
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	PImage getImg() {

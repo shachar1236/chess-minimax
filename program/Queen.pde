@@ -24,8 +24,11 @@ class Queen extends Piece {
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
 		for (int a = - 1; a < 2; a += 2) {
 			
 			int move = 1;
@@ -33,9 +36,11 @@ class Queen extends Piece {
 				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new Cell(i + a * move, j));
 				if (isEnemy(i + a * move, j, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i + a * move, j));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i + a * move, j));
 				}
 				move += 1;
 			}
@@ -45,9 +50,11 @@ class Queen extends Piece {
 				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				current = current.add(new Cell(i, j + a * move));
 				if (isEnemy(i, j + a * move, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i, j + a * move));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i, j + a * move));
 				}
 				move += 1;
 			}
@@ -58,18 +65,22 @@ class Queen extends Piece {
 					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new Cell(i + a * move, j + b * move));
 					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * move, j + b * move));
 						break;
+					} else {
+						currentEmpty = currentEmpty.add(new Cell(i + a * move, j + b * move));
 					}
 					move += 1;
 				}
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	PImage getImg() {

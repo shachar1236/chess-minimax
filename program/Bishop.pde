@@ -28,8 +28,11 @@ public class Bishop extends Piece {
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
 		for (int a = - 1; a < 2; a += 2) {
 			for (int b = - 1; b < 2; b += 2) {
 				int move = 1;
@@ -37,18 +40,21 @@ public class Bishop extends Piece {
 					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new Cell(i + a * move, j + b * move));
 					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * move, j + b * move));
 						break;
+					} else {
+						currentEmpty = currentEmpty.add(new Cell(i + a * move, j + b * move));
 					}
 					move += 1;
 				}
 			}
 		}
-		if (first.data == null) {
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	PImage getImg() {

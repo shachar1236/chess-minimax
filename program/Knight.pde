@@ -28,26 +28,36 @@ public class Knight extends Piece {
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		
 		for (int a = - 1; a < 2; a += 2) {
 			for (int b = - 1; b < 2; b += 2) {
 				if (inRange(i + a * 2) && inRange(j + b)) {
-					if (isEmptyOrEnemy(i + a * 2, j + b, side, board)) {
-						current = current.add(new Cell(i + a * 2, j + b));
+					if (isEmpty(i + a * 2, j + b, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a * 2, j + b));
+					} else if (isEnemy(i + a * 2, j + b, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * 2, j + b));
 					}
 				}
 				if (inRange(i + a) && inRange(j + b * 2)) {
-					if (isEmptyOrEnemy(i + a, j + b * 2, side, board)) {
-						current = current.add(new Cell(i + a, j + b * 2));
+					if (isEmpty(i + a, j + b * 2, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a, j + b * 2));
+					} else if (isEnemy(i + a, j + b * 2, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a, j + b * 2));
 					}
 				}
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	PImage getImg() {

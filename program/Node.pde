@@ -16,4 +16,16 @@ public class Node {
 		next = new Node(n);
 		return next;
 	}
+	
+	public void addNode(Node n) {
+		if (n.data == null) {
+			return;
+		}
+		if (data == null) {
+			data = n.data;
+			next = n.next;
+		} else {
+			next = n;
+		}
+	}
 }

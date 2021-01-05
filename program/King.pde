@@ -28,13 +28,19 @@ class King extends Piece {
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		
 		for (int a = - 1; a < 2; a++) {
 			for (int b = - 1; b < 2; b++) {
 				if (inRange(i + a) && inRange(j + b)) {
-					if (isEmptyOrEnemy(i + a, j + b, side, board)) {
-						current = current.add(new Cell(i + a, j + b));
+					if (isEmpty(i + a, j + b, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a, j + b));
+					} else if (isEnemy(i + a, j + b, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a, j + b));
 					}
 				}
 			}
@@ -46,17 +52,18 @@ class King extends Piece {
 					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
-							current = current.add(new Cell(i + 2 * dir, j));
+							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
 						}
 					}
 				}
 			}
 		}
 		
-		if (first.data == null) {
+		currentEnemy.addNode(firstEmpty);
+		if (currentEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	Cell move(int x, int y, int board[], Piece[] myPieces) {

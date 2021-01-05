@@ -1,6 +1,6 @@
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 4;
+final int lookAhed = 5;
 final int promoteReward = 200;
 
 int cellSize;
@@ -154,7 +154,7 @@ int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Pie
 	if (depth + 1 > lookAhed) {
 		return score;
 	}
-
+	
 	// if (random(0, 1) < 0.005) {
 	// 	println("score: " + score);
 	// 	println("depth: " + depth);
@@ -204,9 +204,9 @@ int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Pie
 					int value = minimax(depth + 1, alpha, beta, false, newBoard, enemyPieces, myPieces, currentScore);
 					
 					best = max(best, value);
-
+					
 					alpha = max(alpha,  value);
-
+					
 					if (beta < alpha + 1) {
 						// println(score);
 						break;
@@ -259,9 +259,9 @@ int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Pie
 					int value = minimax(depth + 1, alpha, beta, true, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = min(best, value);
-
+					
 					beta = min(beta, value);
-
+					
 					if (beta < alpha + 1) {
 						break;
 					}
@@ -324,7 +324,7 @@ PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = minimax(1, -1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
+				int value = minimax(1, - 1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
 				
 				if (value > best) {
 					best = value;

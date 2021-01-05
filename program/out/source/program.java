@@ -16,7 +16,7 @@ public class program extends PApplet {
 
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 4;
+final int lookAhed = 6;
 final int promoteReward = 200;
 
 int cellSize;
@@ -170,7 +170,7 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 	if (depth + 1 > lookAhed) {
 		return score;
 	}
-
+	
 	// if (random(0, 1) < 0.005) {
 	// 	println("score: " + score);
 	// 	println("depth: " + depth);
@@ -220,9 +220,9 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 					int value = minimax(depth + 1, alpha, beta, false, newBoard, enemyPieces, myPieces, currentScore);
 					
 					best = max(best, value);
-
+					
 					alpha = max(alpha,  value);
-
+					
 					if (beta < alpha + 1) {
 						// println(score);
 						break;
@@ -275,9 +275,9 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 					int value = minimax(depth + 1, alpha, beta, true, newBoard, myPieces, enemyPieces, currentScore);
 					
 					best = min(best, value);
-
+					
 					beta = min(beta, value);
-
+					
 					if (beta < alpha + 1) {
 						break;
 					}
@@ -340,7 +340,7 @@ public PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = minimax(1, -1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
+				int value = minimax(1, - 1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
 				
 				if (value > best) {
 					best = value;
@@ -557,8 +557,11 @@ public class Bishop extends Piece {
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
 		for (int a = - 1; a < 2; a += 2) {
 			for (int b = - 1; b < 2; b += 2) {
 				int move = 1;
@@ -566,18 +569,21 @@ public class Bishop extends Piece {
 					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new Cell(i + a * move, j + b * move));
 					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * move, j + b * move));
 						break;
+					} else {
+						currentEmpty = currentEmpty.add(new Cell(i + a * move, j + b * move));
 					}
 					move += 1;
 				}
 			}
 		}
-		if (first.data == null) {
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	public PImage getImg() {
@@ -634,13 +640,19 @@ class King extends Piece {
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		
 		for (int a = - 1; a < 2; a++) {
 			for (int b = - 1; b < 2; b++) {
 				if (inRange(i + a) && inRange(j + b)) {
-					if (isEmptyOrEnemy(i + a, j + b, side, board)) {
-						current = current.add(new Cell(i + a, j + b));
+					if (isEmpty(i + a, j + b, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a, j + b));
+					} else if (isEnemy(i + a, j + b, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a, j + b));
 					}
 				}
 			}
@@ -652,17 +664,18 @@ class King extends Piece {
 					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
-							current = current.add(new Cell(i + 2 * dir, j));
+							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
 						}
 					}
 				}
 			}
 		}
 		
-		if (first.data == null) {
+		currentEnemy.addNode(firstEmpty);
+		if (currentEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	public Cell move(int x, int y, int board[], Piece[] myPieces) {
@@ -725,26 +738,36 @@ public class Knight extends Piece {
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		
 		for (int a = - 1; a < 2; a += 2) {
 			for (int b = - 1; b < 2; b += 2) {
 				if (inRange(i + a * 2) && inRange(j + b)) {
-					if (isEmptyOrEnemy(i + a * 2, j + b, side, board)) {
-						current = current.add(new Cell(i + a * 2, j + b));
+					if (isEmpty(i + a * 2, j + b, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a * 2, j + b));
+					} else if (isEnemy(i + a * 2, j + b, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * 2, j + b));
 					}
 				}
 				if (inRange(i + a) && inRange(j + b * 2)) {
-					if (isEmptyOrEnemy(i + a, j + b * 2, side, board)) {
-						current = current.add(new Cell(i + a, j + b * 2));
+					if (isEmpty(i + a, j + b * 2, board)) {
+						currentEmpty = currentEmpty.add(new Cell(i + a, j + b * 2));
+					} else if (isEnemy(i + a, j + b * 2, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a, j + b * 2));
 					}
 				}
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	public PImage getImg() {
@@ -778,6 +801,18 @@ public class Node {
 		}
 		next = new Node(n);
 		return next;
+	}
+	
+	public void addNode(Node n) {
+		if (n.data == null) {
+			return;
+		}
+		if (data == null) {
+			data = n.data;
+			next = n.next;
+		} else {
+			next = n;
+		}
 	}
 }
 public class Pawn extends Piece {
@@ -984,8 +1019,11 @@ class Queen extends Piece {
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
 		for (int a = - 1; a < 2; a += 2) {
 			
 			int move = 1;
@@ -993,9 +1031,11 @@ class Queen extends Piece {
 				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-				current = current.add(new Cell(i + a * move, j));
 				if (isEnemy(i + a * move, j, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i + a * move, j));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i + a * move, j));
 				}
 				move += 1;
 			}
@@ -1005,9 +1045,11 @@ class Queen extends Piece {
 				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				current = current.add(new Cell(i, j + a * move));
 				if (isEnemy(i, j + a * move, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i, j + a * move));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i, j + a * move));
 				}
 				move += 1;
 			}
@@ -1018,18 +1060,22 @@ class Queen extends Piece {
 					if (isMySide(i + a * move, j + b * move, side, board)) {
 						break;
 					}
-					current = current.add(new Cell(i + a * move, j + b * move));
 					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						currentEnemy = currentEnemy.add(new Cell(i + a * move, j + b * move));
 						break;
+					} else {
+						currentEmpty = currentEmpty.add(new Cell(i + a * move, j + b * move));
 					}
 					move += 1;
 				}
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	public PImage getImg() {
@@ -1076,45 +1122,47 @@ public class Rook extends Piece {
 	}
 	
 	public Node getPossibleMoves(int[] board, Piece[] myPieces) {
-		Node first = new Node(null);
-		Node current = first;
-		for (int k = - 1; k < 2; k += 2) {
-
+		Node firstEnemy = new Node(null);
+		Node firstEmpty = new Node(null);
+		
+		Node currentEnemy = firstEnemy;
+		Node currentEmpty = firstEmpty;
+		for (int a = - 1; a < 2; a += 2) {
+			
 			int move = 1;
-
-			while(inRange(i + k * move)) {
-
-				if (isMySide(i + k * move, j, side, board)) {
+			while(inRange(i + a * move)) {
+				if (isMySide(i + a * move, j, side, board)) {
 					break;
 				}
-
-				current = current.add(new Cell(i + k * move, j));
-				if (isEnemy(i + k * move, j, side, board)) {
+				if (isEnemy(i + a * move, j, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i + a * move, j));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i + a * move, j));
 				}
-
 				move += 1;
 			}
-
+			
 			move = 1;
-			while(inRange(j + k * move)) {
-
-				if (isMySide(i, j + k * move, side, board)) {
+			while(inRange(j + a * move)) {
+				if (isMySide(i, j + a * move, side, board)) {
 					break;
 				}
-				
-				current = current.add(new Cell(i, j + k * move));
-				if (isEnemy(i, j + k * move, side, board)) {
+				if (isEnemy(i, j + a * move, side, board)) {
+					currentEnemy = currentEnemy.add(new Cell(i, j + a * move));
 					break;
+				} else {
+					currentEmpty = currentEmpty.add(new Cell(i, j + a * move));
 				}
-
 				move += 1;
 			}
 		}
-		if (first.data == null) {
+		
+		currentEnemy.addNode(firstEmpty);
+		if (firstEnemy.data == null) {
 			return null;
 		}
-		return first;
+		return firstEnemy;
 	}
 	
 	public PImage getImg() {
