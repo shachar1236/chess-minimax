@@ -1,10 +1,10 @@
 public class PieceMove {
 	
-	int pieceIndex;
+	Cell pos;
 	Cell move; 
 	
-	public PieceMove(int index, Cell m) {
-	    pieceIndex = index;
-	    move = m;
+	public PieceMove(Cell pos_, Cell m) {
+		pos = pos_;
+		move = m;
 	}
 }
