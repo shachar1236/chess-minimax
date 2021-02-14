@@ -546,3 +546,69 @@ boolean isMySide(int i, int j, int side, int[] board) {
 	int value = board[getIndex(i, j)];
 	return value * side > 0 && Math.abs(value) != Pawn.EnPassant;
 }
+
+boolean isInCheck(Piece[] p1, int[] board) {
+	Piece[] king;
+	int side;
+
+	for (int i = 0; i < p1.length; i++) {
+		if (p1[i].getId() == King.id) {
+			king = p1[i];
+			break;
+		}
+	}
+	side = king.side;
+
+
+	for (int a = - 1; a < 2; a += 2) {
+		
+		int move = 1;
+		while(inRange(king.i + a * move)) {
+			if (isMySide(king.i + a * move, king.j, side, board)) {
+				break;
+			}
+			if (isEnemy(king.i + a * move, king.j, side, board)) {
+				int enemy = board[getIndex(king.i + a * move, king.j)] * side * -1;
+				if (enemy == Rook.id || enemy == Queen.id) {
+					return true;
+				}
+				break;
+			}
+			move += 1;
+		}
+		
+		move = 1;
+		while(inRange(king.j + a * move)) {
+			if (isMySide(king.i, king.j + a * move, side, board)) {
+				break;
+			}
+			if (isEnemy(king.i, king.j + a * move, side, board)) {
+				int enemy = board[getIndex(king.i, king.j + a * move)] * side * -1;
+				if (enemy == Rook.id || enemy == Queen.id) {
+					return true;
+				}
+				break;
+			}
+			move += 1;
+		}
+		
+		for (int b = - 1; b < 2; b += 2) {
+			move = 1;
+			while(inRange(king.i + a * move) && inRange(king.j + b * move)) {
+				if (isMySide(king.i + a * move, king.j + b * move, side, board)) {
+					break;
+				}
+				if (isEnemy(king.i + a * move, king.j + b * move, side, board)) {
+					int enemy = board[getIndex(king.i + a * move, king.j + b * move)] * side * -1;
+					if (enemy.id == Bishop.id || enemy.id == Queen.id) {
+						return true;
+					}
+					break;
+				}
+				move += 1;
+			}
+		}
+	}
+
+	return false;
+}

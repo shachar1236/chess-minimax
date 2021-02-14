@@ -1030,16 +1030,6 @@ public class Piece {
 	}
 	
 }
-public class PieceMove {
-	
-	Cell pos;
-	Cell move; 
-	
-	public PieceMove(Cell pos_, Cell m) {
-		pos = pos_;
-		move = m;
-	}
-}
 class Queen extends Piece {
 	
 	final static int value = 900;
@@ -1278,6 +1268,16 @@ public class TranspositionTableNode {
 	public TranspositionTableNode(int[] board, int side) {
 		this.board = board;
 		this.side = side;
+	}
+}
+public class PieceMove {
+	
+	Cell pos;
+	Cell move; 
+	
+	public PieceMove(Cell pos_, Cell m) {
+		pos = pos_;
+		move = m;
 	}
 }
   public void settings() { 	size(800, 800); }
