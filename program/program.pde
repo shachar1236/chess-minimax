@@ -547,21 +547,32 @@ boolean isMySide(int i, int j, int side, int[] board) {
 	return value * side > 0 && Math.abs(value) != Pawn.EnPassant;
 }
 
-boolean isInCheck(Piece[] p1, int[] board) {
-	Piece[] king;
-	int side;
+boolean isLegalMove(int i, int j, Cell moveTo, Piece[] p, int[] _board) {
+	int[] board = _board.clone();
 
-	for (int i = 0; i < p1.length; i++) {
-		if (p1[i].getId() == King.id) {
-			king = p1[i];
-			break;
+	Piece king = null;
+
+	for (int a = 0; a < p.length; a++) {
+		if (p[a] != null) {
+			if (p[a].getId() == King.id) {
+				king = p[a];
+				break;
+			}
 		}
 	}
-	side = king.side;
 
+	int piece = board[getIndex(i, j)];
+	board[getIndex(i, j)] = 0;
+	board[getIndex(moveTo.i, moveTo.j)] = piece;
+	return !isInCheck(king, board);
+}
+
+boolean isInCheck(Piece king, int[] board) {
+	int side = king.side;
 
 	for (int a = - 1; a < 2; a += 2) {
 		
+		// rook
 		int move = 1;
 		while(inRange(king.i + a * move)) {
 			if (isMySide(king.i + a * move, king.j, side, board)) {
@@ -577,6 +588,7 @@ boolean isInCheck(Piece[] p1, int[] board) {
 			move += 1;
 		}
 		
+		// rook
 		move = 1;
 		while(inRange(king.j + a * move)) {
 			if (isMySide(king.i, king.j + a * move, side, board)) {
@@ -593,6 +605,7 @@ boolean isInCheck(Piece[] p1, int[] board) {
 		}
 		
 		for (int b = - 1; b < 2; b += 2) {
+			// bishop
 			move = 1;
 			while(inRange(king.i + a * move) && inRange(king.j + b * move)) {
 				if (isMySide(king.i + a * move, king.j + b * move, side, board)) {
@@ -600,12 +613,30 @@ boolean isInCheck(Piece[] p1, int[] board) {
 				}
 				if (isEnemy(king.i + a * move, king.j + b * move, side, board)) {
 					int enemy = board[getIndex(king.i + a * move, king.j + b * move)] * side * -1;
-					if (enemy.id == Bishop.id || enemy.id == Queen.id) {
+					if (enemy == Bishop.id || enemy == Queen.id || (enemy == Pawn.id && move == 1)) {
 						return true;
 					}
 					break;
 				}
 				move += 1;
+			}
+			
+			// knight
+			if (inRange(king.i + a * 2) && inRange(king.j + b)) {
+				    if (isEnemy(king.i + a * 2, king.j + b, side, board)) {
+						int enemy = board[getIndex(king.i + a * 2, king.j + b)] * side * -1;
+						if (enemy == Knight.id) {
+							return true;
+						}
+					}
+				}
+			if (inRange(king.i + a) && inRange(king.j + b * 2)) {
+				if (isEnemy(king.i + a, king.j + b * 2, side, board)) {
+					int enemy = board[getIndex(king.i + a, king.j + b * 2)] * side * -1;
+					if (enemy == Knight.id) {
+						return true;
+					}
+				}
 			}
 		}
 	}

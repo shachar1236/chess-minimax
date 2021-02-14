@@ -34,20 +34,29 @@ public class Pawn extends Piece {
 		for (int k = - 1; k < 2; k += 2) {
 			if (inRange(i + k) && inRange(j - side)) {
 				if (isEnemy(i + k, j - side, side, board) || board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
-					current = current.add(new Cell(i + k, j - side));
+					Cell move = new Cell(i + k, j - side);
+					if (isLegalMove(i, j, move, myPieces, board)) {
+						current = current.add(move);
+					}
 				}
 			}
 		}
 
 		if (inRange(j - side)) {
 			if (isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side));
+				Cell move = new Cell(i, j - side);
+				if (isLegalMove(i, j, move, myPieces, board)) {
+					current = current.add(move);
+				}
 			}
 		}
 
 		if (inRange(j - side * 2) && firstMove) {
 			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side * 2));
+				Cell move = new Cell(i, j - side * 2);
+				if (isLegalMove(i, j, move, myPieces, board)) {
+					current = current.add(move);
+				}
 			}
 		}
 

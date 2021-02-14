@@ -564,6 +564,103 @@ public boolean isMySide(int i, int j, int side, int[] board) {
 	int value = board[getIndex(i, j)];
 	return value * side > 0 && Math.abs(value) != Pawn.EnPassant;
 }
+
+public boolean isLegalMove(int i, int j, Cell moveTo, Piece[] p, int[] _board) {
+	int[] board = _board.clone();
+
+	Piece king = null;
+
+	for (int a = 0; a < p.length; a++) {
+		if (p[a] != null) {
+			if (p[a].getId() == King.id) {
+				king = p[a];
+				break;
+			}
+		}
+	}
+
+	int piece = board[getIndex(i, j)];
+	board[getIndex(i, j)] = 0;
+	board[getIndex(moveTo.i, moveTo.j)] = piece;
+	return !isInCheck(king, board);
+}
+
+public boolean isInCheck(Piece king, int[] board) {
+	int side = king.side;
+
+	for (int a = - 1; a < 2; a += 2) {
+		
+		// rook
+		int move = 1;
+		while(inRange(king.i + a * move)) {
+			if (isMySide(king.i + a * move, king.j, side, board)) {
+				break;
+			}
+			if (isEnemy(king.i + a * move, king.j, side, board)) {
+				int enemy = board[getIndex(king.i + a * move, king.j)] * side * -1;
+				if (enemy == Rook.id || enemy == Queen.id) {
+					return true;
+				}
+				break;
+			}
+			move += 1;
+		}
+		
+		// rook
+		move = 1;
+		while(inRange(king.j + a * move)) {
+			if (isMySide(king.i, king.j + a * move, side, board)) {
+				break;
+			}
+			if (isEnemy(king.i, king.j + a * move, side, board)) {
+				int enemy = board[getIndex(king.i, king.j + a * move)] * side * -1;
+				if (enemy == Rook.id || enemy == Queen.id) {
+					return true;
+				}
+				break;
+			}
+			move += 1;
+		}
+		
+		for (int b = - 1; b < 2; b += 2) {
+			// bishop
+			move = 1;
+			while(inRange(king.i + a * move) && inRange(king.j + b * move)) {
+				if (isMySide(king.i + a * move, king.j + b * move, side, board)) {
+					break;
+				}
+				if (isEnemy(king.i + a * move, king.j + b * move, side, board)) {
+					int enemy = board[getIndex(king.i + a * move, king.j + b * move)] * side * -1;
+					if (enemy == Bishop.id || enemy == Queen.id || (enemy == Pawn.id && move == 1)) {
+						return true;
+					}
+					break;
+				}
+				move += 1;
+			}
+			
+			// knight
+			if (inRange(king.i + a * 2) && inRange(king.j + b)) {
+				    if (isEnemy(king.i + a * 2, king.j + b, side, board)) {
+						int enemy = board[getIndex(king.i + a * 2, king.j + b)] * side * -1;
+						if (enemy == Knight.id) {
+							return true;
+						}
+					}
+				}
+			if (inRange(king.i + a) && inRange(king.j + b * 2)) {
+				if (isEnemy(king.i + a, king.j + b * 2, side, board)) {
+					int enemy = board[getIndex(king.i + a, king.j + b * 2)] * side * -1;
+					if (enemy == Knight.id) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
 public class Bishop extends Piece {
 	
 	final static int value = 300;
@@ -888,20 +985,29 @@ public class Pawn extends Piece {
 		for (int k = - 1; k < 2; k += 2) {
 			if (inRange(i + k) && inRange(j - side)) {
 				if (isEnemy(i + k, j - side, side, board) || board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
-					current = current.add(new Cell(i + k, j - side));
+					Cell move = new Cell(i + k, j - side);
+					if (isLegalMove(i, j, move, myPieces, board)) {
+						current = current.add(move);
+					}
 				}
 			}
 		}
 
 		if (inRange(j - side)) {
 			if (isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side));
+				Cell move = new Cell(i, j - side);
+				if (isLegalMove(i, j, move, myPieces, board)) {
+					current = current.add(move);
+				}
 			}
 		}
 
 		if (inRange(j - side * 2) && firstMove) {
 			if (isEmpty(i, j - side * 2, board) && isEmpty(i, j - side, board)) {
-				current = current.add(new Cell(i, j - side * 2));
+				Cell move = new Cell(i, j - side * 2);
+				if (isLegalMove(i, j, move, myPieces, board)) {
+					current = current.add(move);
+				}
 			}
 		}
 
