@@ -1,6 +1,7 @@
 public class Node {
 	
-	Cell data;
+	Cell src;
+	Cell dst;
 	Node next;
 	
 	public Node(Cell data) {
