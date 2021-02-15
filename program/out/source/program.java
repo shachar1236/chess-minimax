@@ -18,7 +18,7 @@ public class program extends PApplet {
 
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 4;
+final int lookAhed = 5;
 final int infinity = 1000000000;
 
 int cellSize;
@@ -389,6 +389,101 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 	}
 }
 
+public int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] black, boolean blackTurn) {
+	Piece[] player = black;
+	Piece[] enemy = white;
+	if (!blackTurn) {
+		player = white;
+		enemy = black;
+	}
+
+	boolean dontHaveMyKing = true;
+	boolean dontHaveEnemyKing = true;
+	for (int i = 0; i < player.length; i++) {
+		if (player[i] != null) {
+			if (player[i].getId() == King.id) {
+				dontHaveMyKing = false;
+			}
+		}
+		if (enemy[i] != null) {
+			if (enemy[i].getId() == King.id) {
+				dontHaveEnemyKing = false;
+			}
+		}
+	}
+	
+	if (dontHaveMyKing) {
+		return - infinity;
+	} else if (dontHaveEnemyKing) {
+		return infinity;
+	}
+	
+	if (depth == 0) {
+		return evalPos(board, white, black);
+	}
+
+	int value = - infinity;
+
+	boolean running = true;
+
+	for (int i = 0; i < player.length && running; i++) {
+			
+		if (player[i] != null) {
+			
+			Node move = player[i].getPossibleMoves(board, player);
+			
+			while(move != null) {
+				
+				
+				Piece[] myPieces = copyPlayer(player);
+				Piece[] enemyPieces = copyPlayer(enemy);
+				int[] newBoard = board.clone();
+				
+				Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
+				
+				if (myPieces[i].getId() == Pawn.id) {
+					if (myPieces[i].needToPromote()) {
+						myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+					}
+				}
+				
+				if (dead != null) {
+					for (int k = 0; k <  enemyPieces.length; k++) {
+						if (enemyPieces[k] != null) {
+							if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+								enemyPieces[k] = null;
+							}
+						}
+					}
+				}
+				
+				newBoard = updateBoard(myPieces, enemyPieces);
+				myPieces[i].updateBoard(newBoard);
+				
+				move = move.next;
+
+				Piece[] w = myPieces;
+				Piece[] b = enemyPieces;
+
+				if (blackTurn) {
+					w = enemyPieces;
+					b = myPieces;
+				}
+
+				value = max(value, - search(depth - 1, -beta, -alpha, newBoard, w, b, !blackTurn));
+
+				alpha = max(alpha, value);
+
+				if (alpha > beta - 1) {
+					running = false;
+					break;
+				}
+			}
+		}
+	}
+	return value;
+}
+
 
 public Piece[] copyPlayer(Piece[] player) {
 	Piece[] copy = new Piece[player.length];
@@ -437,7 +532,8 @@ public PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = minimax(lookAhed - 1, - infinity, infinity, false, newBoard, enemyPieces, myPieces);
+				int value = search(lookAhed - 1, - infinity, infinity, newBoard, enemyPieces, myPieces, false);
+				// int value = minimax(lookAhed - 1, - infinity, infinity, false, newBoard, enemyPieces, myPieces);
 				
 				if (value > best) {
 					best = value;
@@ -450,6 +546,7 @@ public PieceMove pickMove() {
 		}
 	}
 	
+	println("best: " + best);
 	return new PieceMove(moveIndex, bestMove);
 }
 
