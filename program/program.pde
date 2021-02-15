@@ -29,20 +29,22 @@ PImage QueenBlackImg;
 
 int board[] = new int[rows * cols];
 
-Piece[] white = {
-	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
-		new Rook(0, 7, 1), new Knight(1, 7, 1),  new Bishop(2, 7, 1), new King(3, 7, 1), new Queen(4, 7, 1), new Bishop(5, 7, 1), new Knight(6, 7, 1), new Rook(7, 7, 1)
-	};
+// Piece[] white = {
+// 	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
+// 		new Rook(0, 7, 1), new Knight(1, 7, 1),  new Bishop(2, 7, 1), new King(3, 7, 1), new Queen(4, 7, 1), new Bishop(5, 7, 1), new Knight(6, 7, 1), new Rook(7, 7, 1)
+// 	};
 
-Piece[] black = {
-	new Rook(0, 0, - 1), new Knight(1, 0, - 1),  new Bishop(2, 0, - 1), new Queen(3, 0, - 1), new King(4, 0, - 1), new Bishop(5, 0, - 1), new Knight(6, 0, - 1), new Rook(7, 0, - 1),
-		new Pawn(0, 1, - 1), new Pawn(1, 1, - 1), new Pawn(2, 1, - 1), new Pawn(3, 1, - 1), new Pawn(4, 1, - 1), new Pawn(5, 1, - 1), new Pawn(6, 1, - 1), new Pawn(7, 1, - 1),
-	};
+// Piece[] black = {
+// 	new Rook(0, 0, - 1), new Knight(1, 0, - 1),  new Bishop(2, 0, - 1), new Queen(4, 0, - 1), new King(3, 0, - 1), new Bishop(5, 0, - 1), new Knight(6, 0, - 1), new Rook(7, 0, - 1),
+// 		new Pawn(0, 1, - 1), new Pawn(1, 1, - 1), new Pawn(2, 1, - 1), new Pawn(3, 1, - 1), new Pawn(4, 1, - 1), new Pawn(5, 1, - 1), new Pawn(6, 1, - 1), new Pawn(7, 1, - 1),
+// 	};
+
+Piece[] white = new Piece[16];
+Piece[] black = new Piece[16];
 
 void setup() {
 	size(800, 800);
 	cellSize = width / rows;
-	board = updateBoard(white, black);
 	
 	PawnWhiteImg = loadImage("data/pawnWhite.png");
 	PawnBlackImg = loadImage("data/pawnBlack.png");
@@ -61,6 +63,82 @@ void setup() {
 	
 	QueenWhiteImg = loadImage("data/queenWhite.png");
 	QueenBlackImg = loadImage("data/queenBlack.png");
+
+	setupPieces();
+}
+
+
+void setupPieces() {
+	char[][] b = {
+		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+	};
+
+	int blackIndex = 0;
+	int whiteIndex = 0;
+
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			char c = b[i][j];
+			switch (c) {
+				case 'r':
+					black[blackIndex] = new Rook(j, i, -1);
+					blackIndex++;
+					break;
+				case 'n':
+					black[blackIndex] = new Knight(j, i, -1);
+					blackIndex++;
+					break;
+				case 'b':
+					black[blackIndex] = new Bishop(j, i, -1);
+					blackIndex++;
+					break;
+				case 'k':
+					black[blackIndex] = new King(j, i, -1);
+					blackIndex++;
+					break;
+				case 'q':
+					black[blackIndex] = new Queen(j, i, -1);
+					blackIndex++;
+					break;
+				case 'p':
+					black[blackIndex] = new Pawn(j, i, -1);
+					blackIndex++;
+					break;
+				case 'R':
+					white[whiteIndex] = new Rook(j, i, 1);
+					whiteIndex++;
+					break;
+				case 'N':
+					white[whiteIndex] = new Knight(j, i, 1);
+					whiteIndex++;
+					break;
+				case 'B':
+					white[whiteIndex] = new Bishop(j, i, 1);
+					whiteIndex++;
+					break;
+				case 'K':
+					white[whiteIndex] = new King(j, i, 1);
+					whiteIndex++;
+					break;
+				case 'Q':
+					white[whiteIndex] = new Queen(j, i, 1);
+					whiteIndex++;
+					break;
+				case 'P':
+					white[whiteIndex] = new Pawn(j, i, 1);
+					whiteIndex++;
+					break;
+			}
+		}
+	}
+	board = updateBoard(white, black);
 }
 
 void draw() {
@@ -385,6 +463,26 @@ void mousePressed() {
 			moving = true;
 			movingPiece = piece;
 			movingPiecePossibleMoves = piece.getPossibleMoves(board, playerPieces);
+			Node current = movingPiecePossibleMoves;
+			Node last = current;
+			boolean first = true;
+			while (current != null) {
+				boolean changed = false;
+				if (!isLegalMove(i, j, current.data, white, board)) {
+					if (!first) {
+						last.next = current.next;
+					} else {
+						movingPiecePossibleMoves = movingPiecePossibleMoves.next;
+						changed = true;
+					}
+				} else {
+					last = current;
+				}
+				current = current.next;
+				if (!changed) {
+					first = false;
+				}
+			}
 		}
 	}
 	
@@ -410,6 +508,10 @@ void mouseReleased() {
 		}
 		move = move.next;
 	}
+
+	if (i == movingPiece.i && j == movingPiece.j) {
+		valid = false;
+	}
 	
 	if (inRange(i) && inRange(j) && valid) {
 		Cell dead = movingPiece.move(i, j, board, playerPieces);
@@ -418,6 +520,7 @@ void mouseReleased() {
 				promoting = true;
 			}
 		}
+
 		if (dead != null) {
 			for (int k = 0; k <  enemyPieces.length; k++) {
 				if (enemyPieces[k] != null) {
@@ -564,6 +667,13 @@ boolean isLegalMove(int i, int j, Cell moveTo, Piece[] p, int[] _board) {
 	int piece = board[getIndex(i, j)];
 	board[getIndex(i, j)] = 0;
 	board[getIndex(moveTo.i, moveTo.j)] = piece;
+
+	if (abs(piece) == King.id) {
+		king = king.clone();
+		king.i = moveTo.i;
+		king.j = moveTo.j;
+	}
+
 	return !isInCheck(king, board);
 }
 

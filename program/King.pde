@@ -49,7 +49,7 @@ class King extends Piece {
 		if (firstMove) {
 			for (int a = 0; a < myPieces.length; a++) {
 				if (myPieces[a] != null) {
-					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
+					if (myPieces[a].getId() == Rook.id) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
