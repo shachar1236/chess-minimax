@@ -18,12 +18,12 @@ public class program extends PApplet {
 
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 5;
-final int promoteReward = 200;
+final int lookAhed = 4;
+final int infinity = 1000000000;
 
 int cellSize;
 
-TranspositionTable transpositionTable = new TranspositionTable(100);
+// TranspositionTable transpositionTable = new TranspositionTable(100);
 
 boolean moving = false;
 Piece movingPiece;
@@ -232,7 +232,23 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 	return newBoard;
 }
 
-public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Piece[] white, Piece[] black, int score) {
+
+public int evalPos(int[] board, Piece[] white, Piece[] black) {
+	int score = 0;
+	for (int i = 0; i < white.length; i++) {
+		if (white[i] != null) {
+			score -= white[i].getValue();
+		}
+	}
+	for (int i = 0; i < black.length; i++) {
+		if (black[i] != null) {
+			score += black[i].getValue();
+		}
+	}
+	return score;
+}
+
+public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Piece[] white, Piece[] black) {
 	boolean dontHaveBlackKing = true;
 	boolean dontHaveWhiteKing = true;
 	for (int i = 0; i < board.length; i++) {
@@ -244,13 +260,13 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 	}
 	
 	if (dontHaveBlackKing) {
-		return - King.value;
+		return - infinity;
 	} else if (dontHaveWhiteKing) {
-		return King.value;
+		return infinity;
 	}
 	
-	if (depth + 1 > lookAhed) {
-		return score;
+	if (depth == 0) {
+		return evalPos(board, white, black);
 	}
 	
 	// if (random(0, 1) < 0.005) {
@@ -261,133 +277,115 @@ public int minimax(int depth, int alpha, int beta, boolean maximizing, int[] boa
 	
 	if (maximizing) {
 		
-		int best = - 1000000;
-		if (transpositionTable.has(board, - 1)) {
-			println("here");
-			int boardScore = transpositionTable.get(board, - 1);
-			return boardScore;
-		} else {
-			for (int i = 0; i < black.length; i++) {
+		int best = - infinity;
+		for (int i = 0; i < black.length; i++) {
+			
+			if (black[i] != null) {
 				
-				if (black[i] != null) {
+				Node move = black[i].getPossibleMoves(board, black);
+				
+				while(move != null) {
 					
-					Node move = black[i].getPossibleMoves(board, black);
+					// int currentScore = score;
 					
-					while(move != null) {
-						
-						int currentScore = score;
-						
-						Piece[] myPieces = copyPlayer(black);
-						Piece[] enemyPieces = copyPlayer(white);
-						int[] newBoard = board.clone();
-						
-						Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
-						
-						if (myPieces[i].getId() == Pawn.id) {
-							if (myPieces[i].needToPromote()) {
-								myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
-								currentScore += promoteReward;
-							}
+					Piece[] myPieces = copyPlayer(black);
+					Piece[] enemyPieces = copyPlayer(white);
+					int[] newBoard = board.clone();
+					
+					Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
+					
+					if (myPieces[i].getId() == Pawn.id) {
+						if (myPieces[i].needToPromote()) {
+							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							// currentScore += promoteReward;
 						}
-						
-						if (dead != null) {
-							for (int k = 0; k <  enemyPieces.length; k++) {
-								if (enemyPieces[k] != null) {
-									if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-										currentScore += enemyPieces[k].getValue();
-										enemyPieces[k] = null;
-									}
+					}
+					
+					if (dead != null) {
+						for (int k = 0; k <  enemyPieces.length; k++) {
+							if (enemyPieces[k] != null) {
+								if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+									// currentScore += enemyPieces[k].getValue();
+									enemyPieces[k] = null;
 								}
 							}
 						}
-						
-						newBoard = updateBoard(myPieces, enemyPieces);
-						myPieces[i].updateBoard(newBoard);
-						
-						int value = minimax(depth + 1, alpha, beta, false, newBoard, enemyPieces, myPieces, currentScore);
-						
-						best = max(best, value);
-						
-						alpha = max(alpha,  value);
-						
-						if (beta < alpha + 1) {
-							// println(score);
-							break;
-						}
-						
-						move = move.next;
 					}
+					
+					newBoard = updateBoard(myPieces, enemyPieces);
+					myPieces[i].updateBoard(newBoard);
+					
+					int value = minimax(depth - 1, alpha, beta, false, newBoard, enemyPieces, myPieces);
+					
+					best = max(best, value);
+					
+					alpha = max(alpha,  value);
+					
+					if (beta < alpha + 1) {
+						// println(score);
+						break;
+					}
+					
+					move = move.next;
 				}
 			}
-			if (depth < 3 && transpositionTable.size < transpositionTable.maxSize + 1) {
-				transpositionTable.put(board, - 1, best);
-			}
-			// println(transpositionTable.has(board, - 1));
-			return best;
 		}
+		return best;
 	} else {
-		int best = 1000000;
-		if (transpositionTable.has(board, 1)) {
-			int boardScore = transpositionTable.get(board, 1);
-			println("here2");
-			return boardScore;
-		} else {
-			for (int i = 0; i < white.length; i++) {
+		int best = infinity;
+
+		for (int i = 0; i < white.length; i++) {
+			
+			if (white[i] != null) {
 				
-				if (white[i] != null) {
+				Node move = white[i].getPossibleMoves(board, white);
+				
+				while(move != null) {
 					
-					Node move = white[i].getPossibleMoves(board, white);
+					// int currentScore = score;
 					
-					while(move != null) {
-						
-						int currentScore = score;
-						
-						Piece[] myPieces = copyPlayer(white);
-						Piece[] enemyPieces = copyPlayer(black);
-						int[] newBoard = board.clone();
-						
-						Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
-						
-						if (myPieces[i].getId() == Pawn.id) {
-							if (myPieces[i].needToPromote()) {
-								myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
-								currentScore -= promoteReward;
-							}
+					Piece[] myPieces = copyPlayer(white);
+					Piece[] enemyPieces = copyPlayer(black);
+					int[] newBoard = board.clone();
+					
+					Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
+					
+					if (myPieces[i].getId() == Pawn.id) {
+						if (myPieces[i].needToPromote()) {
+							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+							// currentScore -= promoteReward;
 						}
-						
-						if (dead != null) {
-							for (int k = 0; k <  enemyPieces.length; k++) {
-								if (enemyPieces[k] != null) {
-									if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-										currentScore -= enemyPieces[k].getValue();
-										enemyPieces[k] = null;
-									}
+					}
+					
+					if (dead != null) {
+						for (int k = 0; k <  enemyPieces.length; k++) {
+							if (enemyPieces[k] != null) {
+								if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+									// currentScore -= enemyPieces[k].getValue();
+									enemyPieces[k] = null;
 								}
 							}
 						}
-						
-						newBoard = updateBoard(myPieces, enemyPieces);
-						myPieces[i].updateBoard(newBoard);
-						
-						int value = minimax(depth + 1, alpha, beta, true, newBoard, myPieces, enemyPieces, currentScore);
-						
-						best = min(best, value);
-						
-						beta = min(beta, value);
-						
-						if (beta < alpha + 1) {
-							break;
-						}
-						
-						move = move.next;
 					}
+					
+					newBoard = updateBoard(myPieces, enemyPieces);
+					myPieces[i].updateBoard(newBoard);
+					
+					int value = minimax(depth - 1, alpha, beta, true, newBoard, myPieces, enemyPieces);
+					
+					best = min(best, value);
+					
+					beta = min(beta, value);
+					
+					if (beta < alpha + 1) {
+						break;
+					}
+					
+					move = move.next;
 				}
 			}
-			if (depth < 3 && transpositionTable.size < transpositionTable.maxSize + 1) {
-				transpositionTable.put(board, 1, best);
-			}
-			return best;
 		}
+		return best;
 	}
 }
 
@@ -405,7 +403,7 @@ public Piece[] copyPlayer(Piece[] player) {
 public PieceMove pickMove() {
 	Cell bestMove = null;
 	Cell moveIndex = null;
-	int best = - 1000000;
+	int best = - infinity;
 	
 	for (int i = 0; i < black.length; i++) {
 		
@@ -414,7 +412,6 @@ public PieceMove pickMove() {
 			Node move = black[i].getPossibleMoves(board, black);
 			
 			while(move != null) {
-				int score = 0;
 				
 				Piece[] myPieces = copyPlayer(black);
 				Piece[] enemyPieces = copyPlayer(white);
@@ -432,7 +429,6 @@ public PieceMove pickMove() {
 					for (int k = 0; k <  enemyPieces.length; k++) {
 						if (enemyPieces[k] != null) {
 							if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-								score += enemyPieces[k].getValue();
 								enemyPieces[k] = null;
 							}
 						}
@@ -441,7 +437,7 @@ public PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = minimax(1, - 1000000, 1000000, false, newBoard, enemyPieces, myPieces , score);
+				int value = minimax(lookAhed - 1, - infinity, infinity, false, newBoard, enemyPieces, myPieces);
 				
 				if (value > best) {
 					best = value;
@@ -856,7 +852,7 @@ public class Cell {
 }
 class King extends Piece {
 	
-	final static int value = 10000;
+	final static int value = 100000;
 	final static int id = 6;
 	
 	public King(int i, int j, int side) {
@@ -905,7 +901,7 @@ class King extends Piece {
 		if (firstMove) {
 			for (int a = 0; a < myPieces.length; a++) {
 				if (myPieces[a] != null) {
-					if (myPieces[a].getId() == Rook.id) {
+					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));

@@ -1,6 +1,6 @@
 class King extends Piece {
 	
-	final static int value = 10000;
+	final static int value = 100000;
 	final static int id = 6;
 	
 	public King(int i, int j, int side) {
@@ -49,7 +49,7 @@ class King extends Piece {
 		if (firstMove) {
 			for (int a = 0; a < myPieces.length; a++) {
 				if (myPieces[a] != null) {
-					if (myPieces[a].getId() == Rook.id) {
+					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
