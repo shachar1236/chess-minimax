@@ -1,6 +1,6 @@
 final int rows = 8;
 final int cols = 8;
-final int lookAhed = 5;
+final int lookAhed = 9;
 final int infinity = 1000000000;
 
 // int evalMult = 1;
@@ -270,6 +270,8 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 
 	boolean running = true;
 
+	Node regularMoves = new Node(null);
+
 	for (int i = 0; i < player.length && running; i++) {
 			
 		if (player[i] != null) {
@@ -277,13 +279,12 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 			Node move = player[i].getPossibleMoves(board, player);
 			
 			while(move != null) {
-				
-				
 				Piece[] myPieces = copyPlayer(player);
 				Piece[] enemyPieces = copyPlayer(enemy);
 				int[] newBoard = board.clone();
 				
 				Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
+
 				
 				if (myPieces[i].getId() == Pawn.id) {
 					if (myPieces[i].needToPromote()) {
@@ -296,9 +297,14 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 						if (enemyPieces[k] != null) {
 							if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
 								enemyPieces[k] = null;
+								break;
 							}
 						}
 					}
+				} else {
+					move.fromPos = new Cell(player[i].i, player[i].j);
+					regularMoves.addNode(move);
+					break;
 				}
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
@@ -316,11 +322,6 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 
 				int eval = - search(depth - 1, -beta, -alpha, newBoard, w, b, -blackTurn);
 
-				// if (random(0, 1) < 0.005) {
-				// 	println("depth: " + depth);
-				// 	println("eval: " + eval);
-				// }
-
 				value = max(value, eval);
 
 				alpha = max(alpha, value);
@@ -330,6 +331,73 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 					break;
 				}
 			}
+		}
+	}
+
+	Node move = regularMoves;
+	if (move.data == null) {
+		move = null;
+	}
+	int i = 0;
+
+	while (move != null && running) {
+
+		if (move.fromPos != null) {
+			for (int k = 0; k <  player.length; k++) {
+				if (player[k] != null) {
+					if (player[k].i == move.fromPos.i && player[k].j == move.fromPos.j) {
+						i = k;
+						break;
+					}
+				}
+			}
+		}
+
+		Piece[] myPieces = copyPlayer(player);
+		Piece[] enemyPieces = copyPlayer(enemy);
+		int[] newBoard = board.clone();
+		
+		Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
+		
+		if (myPieces[i].getId() == Pawn.id) {
+			if (myPieces[i].needToPromote()) {
+				myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
+			}
+		}
+		
+		if (dead != null) {
+			for (int k = 0; k <  enemyPieces.length; k++) {
+				if (enemyPieces[k] != null) {
+					if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+						enemyPieces[k] = null;
+						break;
+					}
+				}
+			}
+		}
+		
+		newBoard = updateBoard(myPieces, enemyPieces);
+		myPieces[i].updateBoard(newBoard);
+		
+		move = move.next;
+
+		Piece[] w = myPieces;
+		Piece[] b = enemyPieces;
+
+		if (blackTurn == 1) {
+			w = enemyPieces;
+			b = myPieces;
+		}
+
+		int eval = - search(depth - 1, -beta, -alpha, newBoard, w, b, -blackTurn);
+
+		value = max(value, eval);
+
+		alpha = max(alpha, value);
+
+		if (alpha > beta - 1) {
+			running = false;
+			break;
 		}
 	}
 

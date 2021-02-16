@@ -6,7 +6,7 @@ public class Node {
 	
 	public Node(Cell data) {
 		this.data = data;
-		fromPos = new Cell(0, 0);
+		fromPos = null;
 		next = null;
 	}
 	
@@ -26,6 +26,7 @@ public class Node {
 		if (data == null) {
 			data = n.data;
 			next = n.next;
+			fromPos = n.fromPos;
 		} else {
 			next = n;
 		}
