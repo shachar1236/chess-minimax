@@ -113,4 +113,20 @@ public class Pawn extends Piece {
 	int getValue() {
 		return value;
 	}
+
+	int evalPossibleCaptures(int[] board) {
+		int score = 0;
+		for (int k = - 1; k < 2; k += 2) {
+			if (inRange(i + k) && inRange(j - side)) {
+				if (isEnemy(i + k, j - side, side, board)) {
+					int enemyId = board[getIndex(i + k, j - side)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+				} else if (board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
+					score += Pawn.value * evalCapturesKillPrecent;
+				}
+			}
+		}
+
+		return score;
+	}
 }

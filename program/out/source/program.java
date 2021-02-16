@@ -20,6 +20,7 @@ final int rows = 8;
 final int cols = 8;
 final int lookAhed = 9;
 final int infinity = 1000000000;
+final float evalCapturesKillPrecent = 0.01f;
 
 // int evalMult = 1;
 
@@ -81,6 +82,11 @@ public void setup() {
 	QueenBlackImg = loadImage("data/queenBlack.png");
 
 	setupPieces();
+}
+
+public int id_to_value(int id) {
+	int[] map = {Pawn.value, Rook.value, Knight.value, Bishop.value, Queen.value, King.value};
+	return map[id - 1];
 }
 
 
@@ -241,11 +247,11 @@ public int evalPos(int[] board, Piece[] white, Piece[] black) {
 	for (int i = 0; i < white.length; i++) {
 		if (white[i] != null) {
 			score -= white[i].getValue();
+			score -= white[i].evalPossibleCaptures(board);
 		}
-	}
-	for (int i = 0; i < black.length; i++) {
 		if (black[i] != null) {
 			score += black[i].getValue();
+			score += black[i].evalPossibleCaptures(board);
 		}
 	}
 	return score;
@@ -945,7 +951,13 @@ class King extends Piece {
 					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
-							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
+							boolean can = true;
+							if (dir == 1 && board[getIndex(i + dir * 3, j)] != 0) {
+								can = false;
+							}
+							if (can) {
+								currentEnemy = currentEnemy.add(new Cell(i + 2 * dir, j));
+							}
 						}
 					}
 				}
@@ -1063,6 +1075,28 @@ public class Knight extends Piece {
 	
 	public int getId() {
 		return id;
+	}
+
+	public int evalPossibleCaptures(int[] board) {
+		int score = 0;
+
+		for (int a = - 1; a < 2; a += 2) {
+			for (int b = - 1; b < 2; b += 2) {
+				if (inRange(i + a * 2) && inRange(j + b)) {
+					if (isEnemy(i + a * 2, j + b, side, board)) {
+						int enemyId = board[getIndex(i + a * 2, j + b)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					}
+				}
+				if (inRange(i + a) && inRange(j + b * 2)) {
+					if (isEnemy(i + a, j + b * 2, side, board)) {
+						int enemyId = board[getIndex(i + a, j + b * 2)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					}
+				}
+			}
+		}
+		return score;
 	}
 }
 public class Node {
@@ -1214,6 +1248,22 @@ public class Pawn extends Piece {
 	public int getValue() {
 		return value;
 	}
+
+	public int evalPossibleCaptures(int[] board) {
+		int score = 0;
+		for (int k = - 1; k < 2; k += 2) {
+			if (inRange(i + k) && inRange(j - side)) {
+				if (isEnemy(i + k, j - side, side, board)) {
+					int enemyId = board[getIndex(i + k, j - side)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+				} else if (board[getIndex(i + k, j - side)] == EnPassant * side * - 1) {
+					score += Pawn.value * evalCapturesKillPrecent;
+				}
+			}
+		}
+
+		return score;
+	}
 }
 public class Piece {
 	
@@ -1223,7 +1273,7 @@ public class Piece {
 	
 	final static int value = 100;
 	final static int id = 1;
-	
+
 	int i;
 	int j;
 	
@@ -1277,6 +1327,10 @@ public class Piece {
 	
 	public int getValue() {
 		return value;
+	}
+
+	public int evalPossibleCaptures(int[] board) {
+		return 0;
 	}
 	
 }
@@ -1382,6 +1436,55 @@ class Queen extends Piece {
 	public int getValue() {
 		return value;
 	}
+
+	public int evalPossibleCaptures(int[] board) {
+		int score = 0;
+
+		for (int a = - 1; a < 2; a += 2) {
+			
+			int move = 1;
+			while(inRange(i + a * move)) {
+				if (isMySide(i + a * move, j, side, board)) {
+					break;
+				}
+				if (isEnemy(i + a * move, j, side, board)) {
+					int enemyId = board[getIndex(i + a * move, j)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					break;
+				}
+				move += 1;
+			}
+			
+			move = 1;
+			while(inRange(j + a * move)) {
+				if (isMySide(i, j + a * move, side, board)) {
+					break;
+				}
+				if (isEnemy(i, j + a * move, side, board)) {
+					int enemyId = board[getIndex(i, j + a * move)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					break;
+				}
+				move += 1;
+			}
+			
+			for (int b = - 1; b < 2; b += 2) {
+				move = 1;
+				while(inRange(i + a * move) && inRange(j + b * move)) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
+						break;
+					}
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						int enemyId = board[getIndex(i + a * move, j + b * move)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+						break;
+					}
+					move += 1;
+				}
+			}
+		}
+		return score;
+	}
 }
 public class Rook extends Piece {
 	
@@ -1468,6 +1571,39 @@ public class Rook extends Piece {
 	
 	public int getValue() {
 		return value;
+	}
+
+	public int evalPossibleCaptures(int[] board) {
+		int score = 0;
+		for (int a = - 1; a < 2; a += 2) {
+			
+			int move = 1;
+			while(inRange(i + a * move)) {
+				if (isMySide(i + a * move, j, side, board)) {
+					break;
+				}
+				if (isEnemy(i + a * move, j, side, board)) {
+					int enemyId = board[getIndex(i + a * move, j)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					break;
+				}
+				move += 1;
+			}
+			
+			move = 1;
+			while(inRange(j + a * move)) {
+				if (isMySide(i, j + a * move, side, board)) {
+					break;
+				}
+				if (isEnemy(i, j + a * move, side, board)) {
+					int enemyId = board[getIndex(i, j + a * move)] * -side;
+					score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					break;
+				}
+				move += 1;
+			}
+		}
+		return score;
 	}
 }
 

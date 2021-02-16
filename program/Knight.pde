@@ -73,4 +73,26 @@ public class Knight extends Piece {
 	int getId() {
 		return id;
 	}
+
+	int evalPossibleCaptures(int[] board) {
+		int score = 0;
+
+		for (int a = - 1; a < 2; a += 2) {
+			for (int b = - 1; b < 2; b += 2) {
+				if (inRange(i + a * 2) && inRange(j + b)) {
+					if (isEnemy(i + a * 2, j + b, side, board)) {
+						int enemyId = board[getIndex(i + a * 2, j + b)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					}
+				}
+				if (inRange(i + a) && inRange(j + b * 2)) {
+					if (isEnemy(i + a, j + b * 2, side, board)) {
+						int enemyId = board[getIndex(i + a, j + b * 2)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+					}
+				}
+			}
+		}
+		return score;
+	}
 }

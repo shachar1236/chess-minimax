@@ -2,6 +2,7 @@ final int rows = 8;
 final int cols = 8;
 final int lookAhed = 9;
 final int infinity = 1000000000;
+final float evalCapturesKillPrecent = 0.01;
 
 // int evalMult = 1;
 
@@ -63,6 +64,11 @@ void setup() {
 	QueenBlackImg = loadImage("data/queenBlack.png");
 
 	setupPieces();
+}
+
+int id_to_value(int id) {
+	int[] map = {Pawn.value, Rook.value, Knight.value, Bishop.value, Queen.value, King.value};
+	return map[id - 1];
 }
 
 
@@ -223,11 +229,11 @@ int evalPos(int[] board, Piece[] white, Piece[] black) {
 	for (int i = 0; i < white.length; i++) {
 		if (white[i] != null) {
 			score -= white[i].getValue();
+			score -= white[i].evalPossibleCaptures(board);
 		}
-	}
-	for (int i = 0; i < black.length; i++) {
 		if (black[i] != null) {
 			score += black[i].getValue();
+			score += black[i].evalPossibleCaptures(board);
 		}
 	}
 	return score;

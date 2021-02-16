@@ -52,7 +52,13 @@ class King extends Piece {
 					if (myPieces[a].getId() == Rook.id && (myPieces[a].i - i) != 0) {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
-							currentEmpty = currentEmpty.add(new Cell(i + 2 * dir, j));
+							boolean can = true;
+							if (dir == 1 && board[getIndex(i + dir * 3, j)] != 0) {
+								can = false;
+							}
+							if (can) {
+								currentEnemy = currentEnemy.add(new Cell(i + 2 * dir, j));
+							}
 						}
 					}
 				}

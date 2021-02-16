@@ -6,7 +6,7 @@ public class Piece {
 	
 	final static int value = 100;
 	final static int id = 1;
-	
+
 	int i;
 	int j;
 	
@@ -60,6 +60,10 @@ public class Piece {
 	
 	int getValue() {
 		return value;
+	}
+
+	int evalPossibleCaptures(int[] board) {
+		return 0;
 	}
 	
 }
