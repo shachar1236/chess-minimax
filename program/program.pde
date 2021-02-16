@@ -3,6 +3,8 @@ final int cols = 8;
 final int lookAhed = 5;
 final int infinity = 1000000000;
 
+// int evalMult = 1;
+
 int cellSize;
 
 // TranspositionTable transpositionTable = new TranspositionTable(100);
@@ -29,20 +31,12 @@ PImage QueenBlackImg;
 
 int board[] = new int[rows * cols];
 
-// Piece[] white = {
-// 	new Pawn(0, 6, 1), new Pawn(1, 6, 1), new Pawn(2, 6, 1), new Pawn(3, 6, 1), new Pawn(4, 6, 1), new Pawn(5, 6, 1), new Pawn(6, 6, 1), new Pawn(7, 6, 1),
-// 		new Rook(0, 7, 1), new Knight(1, 7, 1),  new Bishop(2, 7, 1), new King(3, 7, 1), new Queen(4, 7, 1), new Bishop(5, 7, 1), new Knight(6, 7, 1), new Rook(7, 7, 1)
-// 	};
-
-// Piece[] black = {
-// 	new Rook(0, 0, - 1), new Knight(1, 0, - 1),  new Bishop(2, 0, - 1), new Queen(4, 0, - 1), new King(3, 0, - 1), new Bishop(5, 0, - 1), new Knight(6, 0, - 1), new Rook(7, 0, - 1),
-// 		new Pawn(0, 1, - 1), new Pawn(1, 1, - 1), new Pawn(2, 1, - 1), new Pawn(3, 1, - 1), new Pawn(4, 1, - 1), new Pawn(5, 1, - 1), new Pawn(6, 1, - 1), new Pawn(7, 1, - 1),
-// 	};
-
 Piece[] white = new Piece[16];
 Piece[] black = new Piece[16];
 
 void setup() {
+	// evalMult = ((lookAhed + 1) % 2) - lookAhed % 2;
+	// println("eval mult: " + evalMult);
 	size(800, 800);
 	cellSize = width / rows;
 	
@@ -230,181 +224,40 @@ int evalPos(int[] board, Piece[] white, Piece[] black) {
 	return score;
 }
 
-int minimax(int depth, int alpha, int beta, boolean maximizing, int[] board, Piece[] white, Piece[] black) {
-	boolean dontHaveBlackKing = true;
-	boolean dontHaveWhiteKing = true;
-	for (int i = 0; i < board.length; i++) {
-		if (board[i] == - King.id) {
-			dontHaveBlackKing = false;
-		} else if (board[i] == King.id) {
-			dontHaveWhiteKing = false;
-		}
-	}
-	
-	if (dontHaveBlackKing) {
-		return - infinity;
-	} else if (dontHaveWhiteKing) {
-		return infinity;
-	}
-	
-	if (depth == 0) {
-		return evalPos(board, white, black);
-	}
-	
-	// if (random(0, 1) < 0.005) {
-	// 	println("score: " + score);
-	// 	println("depth: " + depth);
-	// 	println("maximizing: " + maximizing);
-	// }
-	
-	if (maximizing) {
-		
-		int best = - infinity;
-		for (int i = 0; i < black.length; i++) {
-			
-			if (black[i] != null) {
-				
-				Node move = black[i].getPossibleMoves(board, black);
-				
-				while(move != null) {
-					
-					// int currentScore = score;
-					
-					Piece[] myPieces = copyPlayer(black);
-					Piece[] enemyPieces = copyPlayer(white);
-					int[] newBoard = board.clone();
-					
-					Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
-					
-					if (myPieces[i].getId() == Pawn.id) {
-						if (myPieces[i].needToPromote()) {
-							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
-							// currentScore += promoteReward;
-						}
-					}
-					
-					if (dead != null) {
-						for (int k = 0; k <  enemyPieces.length; k++) {
-							if (enemyPieces[k] != null) {
-								if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-									// currentScore += enemyPieces[k].getValue();
-									enemyPieces[k] = null;
-								}
-							}
-						}
-					}
-					
-					newBoard = updateBoard(myPieces, enemyPieces);
-					myPieces[i].updateBoard(newBoard);
-					
-					int value = minimax(depth - 1, alpha, beta, false, newBoard, enemyPieces, myPieces);
-					
-					best = max(best, value);
-					
-					alpha = max(alpha,  value);
-					
-					if (beta < alpha + 1) {
-						// println(score);
-						break;
-					}
-					
-					move = move.next;
-				}
-			}
-		}
-		return best;
-	} else {
-		int best = infinity;
-
-		for (int i = 0; i < white.length; i++) {
-			
-			if (white[i] != null) {
-				
-				Node move = white[i].getPossibleMoves(board, white);
-				
-				while(move != null) {
-					
-					// int currentScore = score;
-					
-					Piece[] myPieces = copyPlayer(white);
-					Piece[] enemyPieces = copyPlayer(black);
-					int[] newBoard = board.clone();
-					
-					Cell dead = myPieces[i].move(move.data.i, move.data.j, board, myPieces);
-					
-					if (myPieces[i].getId() == Pawn.id) {
-						if (myPieces[i].needToPromote()) {
-							myPieces[i] = new Queen(myPieces[i].i, myPieces[i].j, myPieces[i].side);
-							// currentScore -= promoteReward;
-						}
-					}
-					
-					if (dead != null) {
-						for (int k = 0; k <  enemyPieces.length; k++) {
-							if (enemyPieces[k] != null) {
-								if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-									// currentScore -= enemyPieces[k].getValue();
-									enemyPieces[k] = null;
-								}
-							}
-						}
-					}
-					
-					newBoard = updateBoard(myPieces, enemyPieces);
-					myPieces[i].updateBoard(newBoard);
-					
-					int value = minimax(depth - 1, alpha, beta, true, newBoard, myPieces, enemyPieces);
-					
-					best = min(best, value);
-					
-					beta = min(beta, value);
-					
-					if (beta < alpha + 1) {
-						break;
-					}
-					
-					move = move.next;
-				}
-			}
-		}
-		return best;
-	}
-}
-
-int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] black, boolean blackTurn) {
+int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] black, int blackTurn) {
 	Piece[] player = black;
 	Piece[] enemy = white;
-	if (!blackTurn) {
+	if (blackTurn == -1) {
 		player = white;
 		enemy = black;
 	}
 
-	boolean dontHaveMyKing = true;
-	boolean dontHaveEnemyKing = true;
-	for (int i = 0; i < player.length; i++) {
-		if (player[i] != null) {
-			if (player[i].getId() == King.id) {
-				dontHaveMyKing = false;
+	boolean dontHaveBlackKing = true;
+	boolean dontHaveWhiteKing = true;
+	for (int i = 0; i < black.length; i++) {
+		if (black[i] != null) {
+			if (black[i].getId() == King.id) {
+				dontHaveBlackKing = false;
 			}
 		}
-		if (enemy[i] != null) {
-			if (enemy[i].getId() == King.id) {
-				dontHaveEnemyKing = false;
+		if (white[i] != null) {
+			if (white[i].getId() == King.id) {
+				dontHaveWhiteKing = false;
 			}
 		}
 	}
-	
-	if (dontHaveMyKing) {
-		return - infinity;
-	} else if (dontHaveEnemyKing) {
-		return infinity;
+
+	if (dontHaveBlackKing) {
+		return - infinity * blackTurn;
+	} else if (dontHaveWhiteKing) {
+		return infinity * blackTurn;
 	}
 	
 	if (depth == 0) {
-		return evalPos(board, white, black);
+		return evalPos(board, white, black) * blackTurn;
 	}
 
-	int value = - infinity;
+	int value = -infinity;
 
 	boolean running = true;
 
@@ -447,12 +300,19 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 				Piece[] w = myPieces;
 				Piece[] b = enemyPieces;
 
-				if (blackTurn) {
+				if (blackTurn == 1) {
 					w = enemyPieces;
 					b = myPieces;
 				}
 
-				value = max(value, - search(depth - 1, -beta, -alpha, newBoard, w, b, !blackTurn));
+				int eval = - search(depth - 1, -beta, -alpha, newBoard, w, b, -blackTurn);
+
+				// if (random(0, 1) < 0.005) {
+				// 	println("depth: " + depth);
+				// 	println("eval: " + eval);
+				// }
+
+				value = max(value, eval);
 
 				alpha = max(alpha, value);
 
@@ -463,6 +323,7 @@ int search(int depth, int alpha, int beta, int[] board, Piece[] white, Piece[] b
 			}
 		}
 	}
+
 	return value;
 }
 
@@ -514,7 +375,8 @@ PieceMove pickMove() {
 				
 				newBoard = updateBoard(myPieces, enemyPieces);
 				myPieces[i].updateBoard(newBoard);
-				int value = search(lookAhed - 1, - infinity, infinity, newBoard, enemyPieces, myPieces, false);
+				int value = -search(lookAhed - 1, - infinity, infinity, newBoard, enemyPieces, myPieces, -1);
+				// println("main value: " + value);
 				// int value = minimax(lookAhed - 1, - infinity, infinity, false, newBoard, enemyPieces, myPieces);
 				
 				if (value > best) {
