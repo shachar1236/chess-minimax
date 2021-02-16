@@ -1,12 +1,12 @@
 public class Node {
 	
 	Cell data;
-	// Cell from;
+	Cell fromPos;
 	Node next;
 	
 	public Node(Cell data) {
 		this.data = data;
-		// from = data;
+		fromPos = new Cell(0, 0);
 		next = null;
 	}
 	

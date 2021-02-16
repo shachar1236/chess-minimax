@@ -33,6 +33,10 @@ Node movingPiecePossibleMoves;
 
 boolean promoting = false;
 
+
+Cell lastPos = new Cell(-1, -1);
+Cell currentPos = new Cell(-1, -1);
+
 PImage PawnWhiteImg;
 PImage RookWhiteImg;
 PImage KnightWhiteImg;
@@ -81,25 +85,14 @@ public void setup() {
 
 
 public void setupPieces() {
-	// char[][] b = {
-	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
-	// };
-
 	char[][] b = {
-		{'r', 'n', ' ', 'k', 'q', 'b', 'n', 'r'},
-		{'p', 'p', 'p', ' ', 'p', 'p', 'p', 'p'},
+		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{'P', 'P', 'P', 'R', 'P', 'P', 'P', 'P'},
+		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
 		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
 	};
 
@@ -176,6 +169,10 @@ public void draw() {
 			rect(i * cellSize, j * cellSize, cellSize, cellSize);
 		}
 	}
+
+	fill(20, 40, 170);
+	rect(lastPos.i * cellSize, lastPos.j * cellSize, cellSize, cellSize);
+	rect(currentPos.i * cellSize, currentPos.j * cellSize, cellSize, cellSize);
 	
 	if (moving) {
 		Node move = movingPiecePossibleMoves;
@@ -185,6 +182,7 @@ public void draw() {
 			move = move.next;
 		}
 	}
+	
 	
 	for (int i = 0; i < white.length; i++) {
 		if (white[i] != null) {
@@ -532,6 +530,11 @@ public void mouseReleased() {
 				}
 			}
 		}
+
+		lastPos.i = piece.i;
+		lastPos.j = piece.j;
+		currentPos.i = computerMove.move.i;
+		currentPos.j = computerMove.move.j;
 		
 		dead = piece.move(computerMove.move.i, computerMove.move.j, board, black);
 		
@@ -997,12 +1000,12 @@ public class Knight extends Piece {
 public class Node {
 	
 	Cell data;
-	// Cell from;
+	Cell fromPos;
 	Node next;
 	
 	public Node(Cell data) {
 		this.data = data;
-		// from = data;
+		fromPos = new Cell(0, 0);
 		next = null;
 	}
 	
