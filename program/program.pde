@@ -73,15 +73,26 @@ int id_to_value(int id) {
 
 
 void setupPieces() {
+	// char[][] b = {
+	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+	// };
+
 	char[][] b = {
-		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', 'r', ' ', 'k', ' ', ' ', ' ', ' '},
+		{'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+		{' ', ' ', ' ', ' ', ' ', 'K', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 	};
 
 	int blackIndex = 0;
@@ -223,17 +234,18 @@ int[] updateBoard(Piece[] p1, Piece[] p2) {
 	return newBoard;
 }
 
-
 int evalPos(int[] board, Piece[] white, Piece[] black) {
 	int score = 0;
 	for (int i = 0; i < white.length; i++) {
 		if (white[i] != null) {
 			score -= white[i].getValue();
 			score -= white[i].evalPossibleCaptures(board);
+			score -= white[i].evalPos();
 		}
 		if (black[i] != null) {
 			score += black[i].getValue();
 			score += black[i].evalPossibleCaptures(board);
+			score += black[i].evalPos();
 		}
 	}
 	return score;

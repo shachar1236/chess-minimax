@@ -65,5 +65,9 @@ public class Piece {
 	int evalPossibleCaptures(int[] board) {
 		return 0;
 	}
+
+	int evalPos() {
+		return 0;
+	}
 	
 }

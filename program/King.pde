@@ -101,4 +101,16 @@ class King extends Piece {
 	int getId() {
 		return id;
 	}
+
+	int evalPos() {
+		int score = 0;
+		score -= abs(4.5 - j) * 5;
+		int otherSide = ((cols + side) % (cols + 1));
+		score -= 20 / (abs(j - otherSide) + 1);
+
+		score += abs(j - otherSide) * 5;
+		score += abs(1 - j) * 3;
+		score += abs(6 - j) * 3;
+		return score;
+	}
 }

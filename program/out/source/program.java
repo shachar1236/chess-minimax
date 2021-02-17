@@ -91,15 +91,26 @@ public int id_to_value(int id) {
 
 
 public void setupPieces() {
+	// char[][] b = {
+	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+	// };
+
 	char[][] b = {
-		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', 'r', ' ', 'k', ' ', ' ', ' ', ' '},
+		{'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+		{' ', ' ', ' ', ' ', ' ', 'K', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 	};
 
 	int blackIndex = 0;
@@ -241,17 +252,18 @@ public int[] updateBoard(Piece[] p1, Piece[] p2) {
 	return newBoard;
 }
 
-
 public int evalPos(int[] board, Piece[] white, Piece[] black) {
 	int score = 0;
 	for (int i = 0; i < white.length; i++) {
 		if (white[i] != null) {
 			score -= white[i].getValue();
 			score -= white[i].evalPossibleCaptures(board);
+			score -= white[i].evalPos();
 		}
 		if (black[i] != null) {
 			score += black[i].getValue();
 			score += black[i].evalPossibleCaptures(board);
+			score += black[i].evalPos();
 		}
 	}
 	return score;
@@ -1000,6 +1012,18 @@ class King extends Piece {
 	public int getId() {
 		return id;
 	}
+
+	public int evalPos() {
+		int score = 0;
+		score -= abs(4.5f - j) * 5;
+		int otherSide = ((cols + side) % (cols + 1));
+		score -= 20 / (abs(j - otherSide) + 1);
+
+		score += abs(j - otherSide) * 5;
+		score += abs(1 - j) * 3;
+		score += abs(6 - j) * 3;
+		return score;
+	}
 }
 public class Knight extends Piece {
 	
@@ -1330,6 +1354,10 @@ public class Piece {
 	}
 
 	public int evalPossibleCaptures(int[] board) {
+		return 0;
+	}
+
+	public int evalPos() {
 		return 0;
 	}
 	
