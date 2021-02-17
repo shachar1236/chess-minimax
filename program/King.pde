@@ -1,6 +1,6 @@
 class King extends Piece {
 	
-	final static int value = 100000;
+	final static int value = 20000;
 	final static int id = 6;
 	
 	public King(int i, int j, int side) {
