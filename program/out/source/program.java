@@ -871,7 +871,7 @@ public class Bishop extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalBishop(x, y);
 	}
 	
@@ -1159,7 +1159,7 @@ public class Knight extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalKnight(x, y);
 	}
 
@@ -1354,7 +1354,7 @@ public class Pawn extends Piece {
 		int x = i;
 		// side = -1, j = 3, y = 3
 		// side = 1, j = 4, y = 3
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalPawn(x, y);
 	}
 
@@ -1566,7 +1566,7 @@ class Queen extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalQueen(x, y);
 	}
 
@@ -1723,7 +1723,7 @@ public class Rook extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalRook(x, y);
 	}
 

@@ -43,7 +43,7 @@ public class Bishop extends Piece {
 
 	int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
 		return posEvalBishop(x, y);
 	}
 	
