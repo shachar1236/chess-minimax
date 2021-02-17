@@ -133,7 +133,7 @@ public class Pawn extends Piece {
 		int x = i;
 		// side = -1, j = 3, y = 3
 		// side = 1, j = 4, y = 3
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalPawn(x, y);
 	}
 
