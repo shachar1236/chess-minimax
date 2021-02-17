@@ -14,7 +14,7 @@ int posEvalBishop(int i, int j) {
 
 public class Bishop extends Piece {
 	
-	final static int value = 300;
+	final static int value = 330;
 	final static int id = 4;
 	
 	public Bishop(int i, int j, int side) {

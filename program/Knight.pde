@@ -15,7 +15,7 @@ int posEvalKnight(int i, int j) {
 
 public class Knight extends Piece {
 	
-	final static int value = 300;
+	final static int value = 320;
 	final static int id = 3;
 	
 	public Knight(int i, int j, int side) {
