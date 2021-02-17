@@ -1,3 +1,17 @@
+int posEvalBishop(int i, int j) {
+	int[][] values = {
+		{-20,-10,-10,-10,-10,-10,-10,-20},
+		{-10,  0,  0,  0,  0,  0,  0,-10},
+		{-10,  0,  5, 10, 10,  5,  0,-10},
+		{-10,  5,  5, 10, 10,  5,  5,-10},
+		{-10,  0, 10, 10, 10, 10,  0,-10},
+		{-10, 10, 10, 10, 10, 10, 10,-10},
+		{-10,  5,  0,  0,  0,  0,  5,-10},
+		{-20,-10,-10,-10,-10,-10,-10,-20},
+	};
+	return values[j][i];
+}
+
 public class Bishop extends Piece {
 	
 	final static int value = 300;
@@ -25,6 +39,12 @@ public class Bishop extends Piece {
 			img = BishopBlackImg;
 		}
 		image(img, i * cellSize, j * cellSize, cellSize, cellSize);
+	}
+
+	int evalPos() {
+		int x = i;
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		return posEvalBishop(x, y);
 	}
 	
 	Node getPossibleMoves(int[] board, Piece[] myPieces) {
