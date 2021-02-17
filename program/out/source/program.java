@@ -91,15 +91,26 @@ public int id_to_value(int id) {
 
 
 public void setupPieces() {
+	// char[][] b = {
+	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+	// };
+
 	char[][] b = {
-		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+		{' ', ' ', 'r', 'k', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'R', ' ', ' ', 'K', ' ', ' ', ' ', ' '},
 	};
 
 	int blackIndex = 0;
@@ -842,7 +853,7 @@ public int posEvalBishop(int i, int j) {
 
 public class Bishop extends Piece {
 	
-	final static int value = 300;
+	final static int value = 330;
 	final static int id = 4;
 	
 	public Bishop(int i, int j, int side) {
@@ -871,7 +882,7 @@ public class Bishop extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalBishop(x, y);
 	}
 	
@@ -1005,6 +1016,14 @@ class King extends Piece {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							boolean can = true;
+
+							Cell moveTo = new Cell(i + dir, j);
+							can = isLegalMove(i, j, moveTo, myPieces, board);
+							if (can) {
+								moveTo.i = i + dir * 2;
+								can = isLegalMove(i, j, moveTo, myPieces, board);
+							}
+							
 							if (dir == 1 && board[getIndex(i + dir * 3, j)] != 0) {
 								can = false;
 							}
@@ -1083,7 +1102,7 @@ public int posEvalKnight(int i, int j) {
 
 public class Knight extends Piece {
 	
-	final static int value = 300;
+	final static int value = 320;
 	final static int id = 3;
 	
 	public Knight(int i, int j, int side) {
@@ -1159,7 +1178,7 @@ public class Knight extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalKnight(x, y);
 	}
 
@@ -1354,7 +1373,7 @@ public class Pawn extends Piece {
 		int x = i;
 		// side = -1, j = 3, y = 3
 		// side = 1, j = 4, y = 3
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalPawn(x, y);
 	}
 
@@ -1566,7 +1585,7 @@ class Queen extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalQueen(x, y);
 	}
 
@@ -1628,7 +1647,7 @@ public int posEvalRook(int i, int j) {
 		-5,  0,  0,  0,  0,  0,  0, -5,
 		-5,  0,  0,  0,  0,  0,  0, -5,
 		-5,  0,  0,  0,  0,  0,  0, -5,
-		0,  0,  0,  5,  5,  0,  0,  0,
+		0,  -5,  0,  5,  5,  0,  -5,  0,
 	};
 	return values[getIndex(j, i)];
 }
@@ -1723,7 +1742,7 @@ public class Rook extends Piece {
 
 	public int evalPos() {
 		int x = i;
-		int y = ((cols - j - 1) * ((((side + 1) / 2) + 1) % 2)) + j * ((side + 1) / 2);
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
 		return posEvalRook(x, y);
 	}
 

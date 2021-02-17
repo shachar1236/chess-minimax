@@ -53,6 +53,14 @@ class King extends Piece {
 						int dir = Math.abs(i - myPieces[a].i) / (myPieces[a].i - i);
 						if (myPieces[a].firstMove && board[getIndex(i + dir, j)] == 0 && board[getIndex(i + dir * 2, j)] == 0) {
 							boolean can = true;
+
+							Cell moveTo = new Cell(i + dir, j);
+							can = isLegalMove(i, j, moveTo, myPieces, board);
+							if (can) {
+								moveTo.i = i + dir * 2;
+								can = isLegalMove(i, j, moveTo, myPieces, board);
+							}
+							
 							if (dir == 1 && board[getIndex(i + dir * 3, j)] != 0) {
 								can = false;
 							}
