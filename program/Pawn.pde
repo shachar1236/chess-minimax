@@ -1,3 +1,18 @@
+int posEvalPawn(int i, int j) {
+	int[][] values = {
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{50, 50, 50, 50, 50, 50, 50, 50},
+		{10, 10, 20 ,30 ,30, 20, 10, 10},
+		{5, 5, 10, 25, 25, 10, 5, 5},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{5, -5, -10, 0, 0, -10, -5, 5},
+		{5, 10, 10, -20, -20, 10, 10, 5},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+	};
+	return values[j][i];
+}
+
+
 public class Pawn extends Piece {
 	
 	final static int value = 100;
@@ -5,7 +20,7 @@ public class Pawn extends Piece {
 	final static int EnPassant = 100;
 	
 	Cell putEnPassant = null;
-	
+
 	public Pawn(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -112,6 +127,14 @@ public class Pawn extends Piece {
 	
 	int getValue() {
 		return value;
+	}
+
+	int evalPos() {
+		int x = i;
+		// side = -1, j = 3, y = 3
+		// side = 1, j = 4, y = 3
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		return posEvalPawn(x, y);
 	}
 
 	int evalPossibleCaptures(int[] board) {

@@ -73,26 +73,15 @@ int id_to_value(int id) {
 
 
 void setupPieces() {
-	// char[][] b = {
-	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
-	// };
-
 	char[][] b = {
-		{' ', 'r', ' ', 'k', ' ', ' ', ' ', ' '},
-		{'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', 'K', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
 	};
 
 	int blackIndex = 0;
@@ -124,6 +113,10 @@ void setupPieces() {
 					break;
 				case 'p':
 					black[blackIndex] = new Pawn(j, i, -1);
+					// println("side: -1");
+					// println("i: " + j);
+					// println("j: " + i);
+					// println("evalPos: " + black[blackIndex].evalPos());
 					blackIndex++;
 					break;
 				case 'R':
@@ -148,6 +141,10 @@ void setupPieces() {
 					break;
 				case 'P':
 					white[whiteIndex] = new Pawn(j, i, 1);
+					// println("side: 1");
+					// println("i: " + j);
+					// println("j: " + i);
+					// println("evalPos: " + white[whiteIndex].evalPos());
 					whiteIndex++;
 					break;
 			}
@@ -495,6 +492,9 @@ void mousePressed() {
 		
 		int i = floor(mouseX / cellSize);
 		int j = floor(mouseY / cellSize);
+
+		// println("i: " + i);
+		// println("j: " + j);
 		
 		boolean valid = false;
 		Piece piece = null;

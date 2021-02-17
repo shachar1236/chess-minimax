@@ -91,26 +91,15 @@ public int id_to_value(int id) {
 
 
 public void setupPieces() {
-	// char[][] b = {
-	// 	{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
-	// 	{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-	// 	{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-	// 	{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
-	// };
-
 	char[][] b = {
-		{' ', 'r', ' ', 'k', ' ', ' ', ' ', ' '},
-		{'r', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'r', 'n', 'b', 'k', 'q', 'b', 'n', 'r'},
+		{'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
 		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', 'K', ' ', ' '},
-		{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+		{'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+		{'R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R'}
 	};
 
 	int blackIndex = 0;
@@ -142,6 +131,10 @@ public void setupPieces() {
 					break;
 				case 'p':
 					black[blackIndex] = new Pawn(j, i, -1);
+					// println("side: -1");
+					// println("i: " + j);
+					// println("j: " + i);
+					// println("evalPos: " + black[blackIndex].evalPos());
 					blackIndex++;
 					break;
 				case 'R':
@@ -166,6 +159,10 @@ public void setupPieces() {
 					break;
 				case 'P':
 					white[whiteIndex] = new Pawn(j, i, 1);
+					// println("side: 1");
+					// println("i: " + j);
+					// println("j: " + i);
+					// println("evalPos: " + white[whiteIndex].evalPos());
 					whiteIndex++;
 					break;
 			}
@@ -513,6 +510,9 @@ public void mousePressed() {
 		
 		int i = floor(mouseX / cellSize);
 		int j = floor(mouseY / cellSize);
+
+		// println("i: " + i);
+		// println("j: " + j);
 		
 		boolean valid = false;
 		Piece piece = null;
@@ -1157,6 +1157,21 @@ public class Node {
 		}
 	}
 }
+public int posEvalPawn(int i, int j) {
+	int[][] values = {
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{50, 50, 50, 50, 50, 50, 50, 50},
+		{10, 10, 20 ,30 ,30, 20, 10, 10},
+		{5, 5, 10, 25, 25, 10, 5, 5},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{5, -5, -10, 0, 0, -10, -5, 5},
+		{5, 10, 10, -20, -20, 10, 10, 5},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+	};
+	return values[j][i];
+}
+
+
 public class Pawn extends Piece {
 	
 	final static int value = 100;
@@ -1164,7 +1179,7 @@ public class Pawn extends Piece {
 	final static int EnPassant = 100;
 	
 	Cell putEnPassant = null;
-	
+
 	public Pawn(int i, int j, int side) {
 		super(i, j, side);
 	}
@@ -1272,6 +1287,14 @@ public class Pawn extends Piece {
 	public int getValue() {
 		return value;
 	}
+
+	// int evalPos() {
+	// 	int x = i;
+	// 	// side = -1, j = 3, y = 3
+	// 	// side = 1, j = 4, y = 3
+	// 	int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+	// 	return posEvalPawn(x, y);
+	// }
 
 	public int evalPossibleCaptures(int[] board) {
 		int score = 0;
