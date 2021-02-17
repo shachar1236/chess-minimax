@@ -21,6 +21,7 @@ final int cols = 8;
 final int lookAhed = 9;
 final int infinity = 1000000000;
 final float evalCapturesKillPrecent = 0.01f;
+final float evalPosPrecent = 0.6f;
 
 // int evalMult = 1;
 
@@ -837,7 +838,7 @@ public int posEvalBishop(int i, int j) {
 		-10,  5,  0,  0,  0,  0,  5,-10,
 		-20,-10,-10,-10,-10,-10,-10,-20,
 	};
-	return values[getIndex(j, i)];
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 public class Bishop extends Piece {
@@ -952,7 +953,7 @@ public class Cell {
 }
 class King extends Piece {
 	
-	final static int value = 100000;
+	final static int value = 10000;
 	final static int id = 6;
 	
 	public King(int i, int j, int side) {
@@ -1085,7 +1086,7 @@ public int posEvalKnight(int i, int j) {
 		-40,-20,  0,  5,  5,  0,-20,-40,
 		-50,-40,-30,-30,-30,-30,-40,-50,
 	};
-	return values[getIndex(j, i)];
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 
@@ -1238,7 +1239,7 @@ public int posEvalPawn(int i, int j) {
 		5, 10, 10, -20, -20, 10, 10, 5,
 		0, 0, 0, 0, 0, 0, 0, 0,
 	};
-	return values[getIndex(j, i)];
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 
@@ -1466,7 +1467,7 @@ public int posEvalQueen(int i, int j) {
 		-10,  0,  5,  0,  0,  0,  0,-10,
 		-20,-10,-10, -5, -5,-10,-10,-20
 	};
-	return values[getIndex(j, i)];
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 class Queen extends Piece {
@@ -1638,7 +1639,7 @@ public int posEvalRook(int i, int j) {
 		-5,  0,  0,  0,  0,  0,  0, -5,
 		0,  -5,  0,  5,  5,  0,  -5,  0,
 	};
-	return values[getIndex(j, i)];
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 

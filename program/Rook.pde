@@ -9,7 +9,7 @@ int posEvalRook(int i, int j) {
 		-5,  0,  0,  0,  0,  0,  0, -5,
 		0,  -5,  0,  5,  5,  0,  -5,  0,
 	};
-	return values[getIndex(j, i)] * evalPosPrecent;
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 

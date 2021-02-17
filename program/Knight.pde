@@ -9,7 +9,7 @@ int posEvalKnight(int i, int j) {
 		-40,-20,  0,  5,  5,  0,-20,-40,
 		-50,-40,-30,-30,-30,-30,-40,-50,
 	};
-	return values[getIndex(j, i)] * evalPosPrecent;
+	return (int)(values[getIndex(j, i)] * evalPosPrecent);
 }
 
 
