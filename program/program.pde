@@ -3,6 +3,7 @@ final int cols = 8;
 final int lookAhed = 9;
 final int infinity = 1000000000;
 final float evalCapturesKillPrecent = 0.01;
+final float evalPosPrecent = 0.6;
 
 // int evalMult = 1;
 

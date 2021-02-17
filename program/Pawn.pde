@@ -9,7 +9,7 @@ int posEvalPawn(int i, int j) {
 		5, 10, 10, -20, -20, 10, 10, 5,
 		0, 0, 0, 0, 0, 0, 0, 0,
 	};
-	return values[getIndex(j, i)];
+	return values[getIndex(j, i)] * evalPosPrecent;
 }
 
 
