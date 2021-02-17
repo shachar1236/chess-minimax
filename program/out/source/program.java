@@ -1447,6 +1447,20 @@ public class Piece {
 	}
 	
 }
+public int posEvalQueen(int i, int j) {
+	int[] values = {
+		-20,-10,-10, -5, -5,-10,-10,-20,
+		-10,  0,  0,  0,  0,  0,  0,-10,
+		-10,  0,  5,  5,  5,  5,  0,-10,
+		-5,  0,  5,  5,  5,  5,  0, -5,
+		 0,  0,  5,  5,  5,  5,  0, -5,
+		-10,  5,  5,  5,  5,  5,  0,-10,
+		-10,  0,  5,  0,  0,  0,  0,-10,
+		-20,-10,-10, -5, -5,-10,-10,-20
+	};
+	return values[getIndex(j, i)];
+}
+
 class Queen extends Piece {
 	
 	final static int value = 900;
@@ -1550,6 +1564,12 @@ class Queen extends Piece {
 		return value;
 	}
 
+	public int evalPos() {
+		int x = i;
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		return posEvalQueen(x, y);
+	}
+
 	public int evalPossibleCaptures(int[] board) {
 		int score = 0;
 
@@ -1599,6 +1619,21 @@ class Queen extends Piece {
 		return score;
 	}
 }
+public int posEvalRook(int i, int j) {
+	int[] values = {
+		0,  0,  0,  0,  0,  0,  0,  0,
+		5, 10, 10, 10, 10, 10, 10,  5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		0,  0,  0,  5,  5,  0,  0,  0,
+	};
+	return values[getIndex(j, i)];
+}
+
+
 public class Rook extends Piece {
 	
 	final static int value = 500;
@@ -1684,6 +1719,12 @@ public class Rook extends Piece {
 	
 	public int getValue() {
 		return value;
+	}
+
+	public int evalPos() {
+		int x = i;
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		return posEvalRook(x, y);
 	}
 
 	public int evalPossibleCaptures(int[] board) {

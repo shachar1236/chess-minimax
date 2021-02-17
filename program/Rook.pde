@@ -1,3 +1,18 @@
+int posEvalRook(int i, int j) {
+	int[] values = {
+		0,  0,  0,  0,  0,  0,  0,  0,
+		5, 10, 10, 10, 10, 10, 10,  5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		-5,  0,  0,  0,  0,  0,  0, -5,
+		0,  0,  0,  5,  5,  0,  0,  0,
+	};
+	return values[getIndex(j, i)];
+}
+
+
 public class Rook extends Piece {
 	
 	final static int value = 500;
@@ -83,6 +98,12 @@ public class Rook extends Piece {
 	
 	int getValue() {
 		return value;
+	}
+
+	int evalPos() {
+		int x = i;
+		int y = ((cols - j - 1) * ((side + 1) / 2)) + j * ((((side + 1) / 2) + 1) % 2);
+		return posEvalRook(x, y);
 	}
 
 	int evalPossibleCaptures(int[] board) {
