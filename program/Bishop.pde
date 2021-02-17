@@ -1,15 +1,15 @@
 int posEvalBishop(int i, int j) {
-	int[][] values = {
-		{-20,-10,-10,-10,-10,-10,-10,-20},
-		{-10,  0,  0,  0,  0,  0,  0,-10},
-		{-10,  0,  5, 10, 10,  5,  0,-10},
-		{-10,  5,  5, 10, 10,  5,  5,-10},
-		{-10,  0, 10, 10, 10, 10,  0,-10},
-		{-10, 10, 10, 10, 10, 10, 10,-10},
-		{-10,  5,  0,  0,  0,  0,  5,-10},
-		{-20,-10,-10,-10,-10,-10,-10,-20},
+	int[] values = {
+		-20,-10,-10,-10,-10,-10,-10,-20,
+		-10,  0,  0,  0,  0,  0,  0,-10,
+		-10,  0,  5, 10, 10,  5,  0,-10,
+		-10,  5,  5, 10, 10,  5,  5,-10,
+		-10,  0, 10, 10, 10, 10,  0,-10,
+		-10, 10, 10, 10, 10, 10, 10,-10,
+		-10,  5,  0,  0,  0,  0,  5,-10,
+		-20,-10,-10,-10,-10,-10,-10,-20,
 	};
-	return values[j][i];
+	return values[getIndex(j, i)];
 }
 
 public class Bishop extends Piece {
@@ -89,5 +89,26 @@ public class Bishop extends Piece {
 	
 	int getId() {
 		return id;
+	}
+
+	int evalPossibleCaptures(int[] board) {
+		int score = 0;
+		for (int a = - 1; a < 2; a += 2) {
+			for (int b = - 1; b < 2; b += 2) {
+				int move = 1;
+				while(inRange(i + a * move) && inRange(j + b * move)) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
+						break;
+					}
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						int enemyId = board[getIndex(i + a * move, j + b * move)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+						break;
+					}
+					move += 1;
+				}
+			}
+		}
+		return score;
 	}
 }

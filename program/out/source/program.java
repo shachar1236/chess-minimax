@@ -827,17 +827,17 @@ public boolean isInCheck(Piece king, int[] board) {
 	return false;
 }
 public int posEvalBishop(int i, int j) {
-	int[][] values = {
-		{-20,-10,-10,-10,-10,-10,-10,-20},
-		{-10,  0,  0,  0,  0,  0,  0,-10},
-		{-10,  0,  5, 10, 10,  5,  0,-10},
-		{-10,  5,  5, 10, 10,  5,  5,-10},
-		{-10,  0, 10, 10, 10, 10,  0,-10},
-		{-10, 10, 10, 10, 10, 10, 10,-10},
-		{-10,  5,  0,  0,  0,  0,  5,-10},
-		{-20,-10,-10,-10,-10,-10,-10,-20},
+	int[] values = {
+		-20,-10,-10,-10,-10,-10,-10,-20,
+		-10,  0,  0,  0,  0,  0,  0,-10,
+		-10,  0,  5, 10, 10,  5,  0,-10,
+		-10,  5,  5, 10, 10,  5,  5,-10,
+		-10,  0, 10, 10, 10, 10,  0,-10,
+		-10, 10, 10, 10, 10, 10, 10,-10,
+		-10,  5,  0,  0,  0,  0,  5,-10,
+		-20,-10,-10,-10,-10,-10,-10,-20,
 	};
-	return values[j][i];
+	return values[getIndex(j, i)];
 }
 
 public class Bishop extends Piece {
@@ -917,6 +917,27 @@ public class Bishop extends Piece {
 	
 	public int getId() {
 		return id;
+	}
+
+	public int evalPossibleCaptures(int[] board) {
+		int score = 0;
+		for (int a = - 1; a < 2; a += 2) {
+			for (int b = - 1; b < 2; b += 2) {
+				int move = 1;
+				while(inRange(i + a * move) && inRange(j + b * move)) {
+					if (isMySide(i + a * move, j + b * move, side, board)) {
+						break;
+					}
+					if (isEnemy(i + a * move, j + b * move, side, board)) {
+						int enemyId = board[getIndex(i + a * move, j + b * move)] * -side;
+						score += id_to_value(enemyId) * evalCapturesKillPrecent;
+						break;
+					}
+					move += 1;
+				}
+			}
+		}
+		return score;
 	}
 }
 public class Cell {
@@ -1046,17 +1067,17 @@ class King extends Piece {
 	}
 }
 public int posEvalKnight(int i, int j) {
-	int[][] values = {
-		{-50,-40,-30,-30,-30,-30,-40,-50},
-		{-40,-20,  0,  0,  0,  0,-20,-40},
-		{-30,  0, 10, 15, 15, 10,  0,-30},
-		{-30,  5, 15, 20, 20, 15,  5,-30},
-		{-30,  0, 15, 20, 20, 15,  0,-30},
-		{-30,  5, 10, 15, 15, 10,  5,-30},
-		{-40,-20,  0,  5,  5,  0,-20,-40},
-		{-50,-40,-30,-30,-30,-30,-40,-50},
+	int[] values = {
+		-50,-40,-30,-30,-30,-30,-40,-50,
+		-40,-20,  0,  0,  0,  0,-20,-40,
+		-30,  0, 10, 15, 15, 10,  0,-30,
+		-30,  5, 15, 20, 20, 15,  5,-30,
+		-30,  0, 15, 20, 20, 15,  0,-30,
+		-30,  5, 10, 15, 15, 10,  5,-30,
+		-40,-20,  0,  5,  5,  0,-20,-40,
+		-50,-40,-30,-30,-30,-30,-40,-50,
 	};
-	return values[j][i];
+	return values[getIndex(j, i)];
 }
 
 
@@ -1199,17 +1220,17 @@ public class Node {
 	}
 }
 public int posEvalPawn(int i, int j) {
-	int[][] values = {
-		{0, 0, 0, 0, 0, 0, 0, 0},
-		{50, 50, 50, 50, 50, 50, 50, 50},
-		{10, 10, 20 ,30 ,30, 20, 10, 10},
-		{5, 5, 10, 25, 25, 10, 5, 5},
-		{0, 0, 0, 0, 0, 0, 0, 0},
-		{5, -5, -10, 0, 0, -10, -5, 5},
-		{5, 10, 10, -20, -20, 10, 10, 5},
-		{0, 0, 0, 0, 0, 0, 0, 0},
+	int[] values = {
+		0, 0, 0, 0, 0, 0, 0, 0,
+		50, 50, 50, 50, 50, 50, 50, 50,
+		10, 10, 20 ,30 ,30, 20, 10, 10,
+		5, 5, 10, 25, 25, 10, 5, 5,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		5, -5, -10, 0, 0, -10, -5, 5,
+		5, 10, 10, -20, -20, 10, 10, 5,
+		0, 0, 0, 0, 0, 0, 0, 0,
 	};
-	return values[j][i];
+	return values[getIndex(j, i)];
 }
 
 
