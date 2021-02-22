@@ -17,6 +17,9 @@ Node movingPiecePossibleMoves;
 
 boolean promoting = false;
 
+// 0 = white
+// 1 = black
+int currentPlayer = 0;
 
 Cell lastPos = new Cell(-1, -1);
 Cell currentPos = new Cell(-1, -1);
@@ -207,6 +210,49 @@ void draw() {
 		text("2 - Knight", width / 2 - 115, 450);
 		text("3 - Bishop", width / 2 - 115, 500);
 		text("4 - Rook", width / 2 - 115, 550);
+	} else if (currentPlayer == 1) {
+
+		PieceMove computerMove = pickMove();
+
+		Piece piece = null;
+		int pieceIndex = 0;
+		for (int k = 0; k < black.length; k++) {
+			if (black[k] != null) {
+				if (black[k].i == computerMove.pos.i && black[k].j == computerMove.pos.j) {
+					piece = black[k];
+					pieceIndex = k;
+					break;
+				}
+			}
+		}
+
+		lastPos.i = piece.i;
+		lastPos.j = piece.j;
+		currentPos.i = computerMove.move.i;
+		currentPos.j = computerMove.move.j;
+		
+		Cell dead = piece.move(computerMove.move.i, computerMove.move.j, board, black);
+		
+		if (piece.getId() == Pawn.id) {
+			if (piece.needToPromote()) {
+				black[pieceIndex] = new Queen(piece.i, piece.j, piece.side);
+			}
+		}
+		
+		if (dead != null) {
+			for (int k = 0; k <  white.length; k++) {
+				if (white[k] != null) {
+					if (white[k].i == dead.i && white[k].j == dead.j) {
+						white[k] = null;
+					}
+				}
+			}
+		}
+		
+		board = updateBoard(white, black);
+		piece.updateBoard(board);
+
+		currentPlayer = (currentPlayer + 1) % 2;
 	}
 }
 
@@ -488,7 +534,7 @@ PieceMove pickMove() {
 }
 
 void mousePressed() {
-	if (!promoting) {
+	if (!promoting && currentPlayer == 0) {
 		Piece[] playerPieces = white;
 		
 		int i = floor(mouseX / cellSize);
@@ -540,103 +586,60 @@ void mousePressed() {
 }
 
 void mouseReleased() {
-	
-	Piece[] playerPieces = white;
-	Piece[] enemyPieces = black;
-	
-	moving = false;
-	int i = floor(mouseX / cellSize);
-	int j = floor(mouseY / cellSize);
-	
-	boolean valid = false;
-	Node move = movingPiecePossibleMoves;
-	
-	while(move != null) {
-		if (move.data.i == i && move.data.j == j) {
-			valid = true;
-			// movingPiece.firstMove = false;
-			break;
-		}
-		move = move.next;
-	}
 
-	if (i == movingPiece.i && j == movingPiece.j) {
-		valid = false;
-	}
-	
-	if (inRange(i) && inRange(j) && valid) {
-		Cell dead = movingPiece.move(i, j, board, playerPieces);
-		if (movingPiece.getId() == Pawn.id) {
-			if (movingPiece.needToPromote()) {
-				promoting = true;
+	if (!promoting && currentPlayer == 0) {
+		Piece[] playerPieces = white;
+		Piece[] enemyPieces = black;
+		
+		moving = false;
+		int i = floor(mouseX / cellSize);
+		int j = floor(mouseY / cellSize);
+		
+		boolean valid = false;
+		Node move = movingPiecePossibleMoves;
+		
+		while(move != null) {
+			if (move.data.i == i && move.data.j == j) {
+				valid = true;
+				// movingPiece.firstMove = false;
+				break;
 			}
+			move = move.next;
 		}
 
-		if (dead != null) {
-			for (int k = 0; k <  enemyPieces.length; k++) {
-				if (enemyPieces[k] != null) {
-					if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
-						enemyPieces[k] = null;
+		if (i == movingPiece.i && j == movingPiece.j) {
+			valid = false;
+		}
+		
+		if (inRange(i) && inRange(j) && valid) {
+			lastPos.i = movingPiece.i;
+			lastPos.j = movingPiece.j;
+			currentPos.i = i;
+			currentPos.j = j;
+			Cell dead = movingPiece.move(i, j, board, playerPieces);
+			if (movingPiece.getId() == Pawn.id) {
+				if (movingPiece.needToPromote()) {
+					promoting = true;
+				}
+			}
+
+			if (dead != null) {
+				for (int k = 0; k <  enemyPieces.length; k++) {
+					if (enemyPieces[k] != null) {
+						if (enemyPieces[k].i == dead.i && enemyPieces[k].j == dead.j) {
+							enemyPieces[k] = null;
+						}
 					}
 				}
 			}
-		}
-		board = updateBoard(white, black);
-		movingPiece.updateBoard(board);
-		
-		draw();
-		
-		PieceMove computerMove = pickMove();
-		
-		Piece piece = null;
-		int pieceIndex = 0;
-		for (int k = 0; k < black.length; k++) {
-			if (black[k] != null) {
-				if (black[k].i == computerMove.pos.i && black[k].j == computerMove.pos.j) {
-					piece = black[k];
-					pieceIndex = k;
-					break;
-				}
-			}
-		}
+			board = updateBoard(white, black);
+			movingPiece.updateBoard(board);
 
-		lastPos.i = piece.i;
-		lastPos.j = piece.j;
-		currentPos.i = computerMove.move.i;
-		currentPos.j = computerMove.move.j;
-		
-		dead = piece.move(computerMove.move.i, computerMove.move.j, board, black);
-		
-		if (piece.getId() == Pawn.id) {
-			if (piece.needToPromote()) {
-				black[pieceIndex] = new Queen(piece.i, piece.j, piece.side);
-			}
+			currentPlayer = (currentPlayer + 1) % 2;
+			
 		}
-		
-		if (dead != null) {
-			for (int k = 0; k <  white.length; k++) {
-				if (white[k] != null) {
-					if (white[k].i == dead.i && white[k].j == dead.j) {
-						white[k] = null;
-					}
-				}
-			}
-		}
-		
-		board = updateBoard(white, black);
-		piece.updateBoard(board);
-		
-		// transpositionTable.pr();
-		
 	}
-	println();
-	for (int a = 0; a < 8; a++) {
-		for (int b = 0; b < 8; b++) {
-			print(board[getIndex(b, a)]);
-			print(" ");
-		}
-		println();
-	}
+	
 }
 
 void keyPressed() {
